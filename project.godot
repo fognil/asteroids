@@ -15,10 +15,6 @@ run/main_scene="res://scenes/menu/main_menu.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
-[gui]
-
-theme/custom="res://assets/fonts/neon_theme.tres"
-
 [autoload]
 
 EventBus="*res://scripts/autoload/event_bus.gd"
@@ -37,6 +33,10 @@ window/size/mode=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=4
+
+[gui]
+
+theme/custom="res://assets/fonts/neon_theme.tres"
 
 [input]
 
