@@ -79,10 +79,11 @@ func _ready() -> void:
 
 func _generate_stars() -> void:
 	var vp := ScreenWrap.get_viewport_size()
-	for i in 100:
+	var sc := vp.y / 1080.0
+	for i in 150:
 		star_bg.append({
 			"pos": Vector2(randf() * vp.x, randf() * vp.y),
-			"size": randf_range(0.3, 1.5),
+			"size": randf_range(0.5, 2.5) * sc,
 			"brightness": randf_range(0.1, 0.4),
 			"speed": randf_range(0.5, 2.5),
 			"offset": randf() * TAU,
@@ -103,8 +104,9 @@ func _handle_touch(pos: Vector2) -> void:
 	var vp := get_viewport_rect().size
 	
 	if selected_tab >= 0:
-		# Check back button
-		if pos.x < 100 and pos.y < 60:
+		# Check back button (scaled)
+		var sc := vp.y / 1080.0
+		if pos.x < 160 * sc and pos.y < 80 * sc:
 			_hide_subscreens()
 			selected_tab = -1
 			return
@@ -496,10 +498,14 @@ func _draw_nav_bar(vp: Vector2, font: Font) -> void:
 # === Sub Screens ===
 func _draw_sub_screen(vp: Vector2, font: Font, time: float) -> void:
 	# Header
-	draw_rect(Rect2(0, 0, vp.x, 50), Color(0, 0, 0, 0.6))
-	draw_string(font, Vector2(20, 35), "← Back", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0, 1, 1, 0.8))
-	NeonIcons.draw_coin(self, Vector2(vp.x - 158, 27), 6.0)
-	draw_string(font, Vector2(vp.x - 145, 35), str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 0.85, 0.2))
+	var sc := vp.y / 1080.0
+	var hdr_h := 80.0 * sc
+	var hdr_fs := int(28 * sc)
+	draw_rect(Rect2(0, 0, vp.x, hdr_h), Color(0, 0, 0, 0.6))
+	draw_line(Vector2(0, hdr_h), Vector2(vp.x, hdr_h), Color(0.2, 0.3, 0.4, 0.3), 1.0)
+	draw_string(font, Vector2(30 * sc, hdr_h / 2 + hdr_fs * 0.35), "< Back", HORIZONTAL_ALIGNMENT_LEFT, -1, hdr_fs, Color(0, 1, 1, 0.8))
+	NeonIcons.draw_coin(self, Vector2(vp.x - 250 * sc, hdr_h / 2), 10.0 * sc)
+	draw_string(font, Vector2(vp.x - 230 * sc, hdr_h / 2 + hdr_fs * 0.35), str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, hdr_fs, Color(1, 0.85, 0.2))
 	
 	match selected_tab:
 		0: _draw_hangar(vp, font, time)
@@ -511,16 +517,18 @@ func _draw_sub_screen(vp: Vector2, font: Font, time: float) -> void:
 	_draw_nav_bar(vp, font)
 
 func _draw_hangar(vp: Vector2, font: Font, time: float) -> void:
+	var sc := vp.y / 1080.0
 	var title := "HANGAR"
-	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
-	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0, 1, 1))
+	var title_fs := int(40 * sc)
+	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs)
+	draw_string(font, Vector2((vp.x - ts.x) / 2, 60 * sc), title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs, Color(0, 1, 1))
 	
 	# Ship list
 	var ship_ids := ["phoenix", "viper", "nebula", "titan", "shadow", "omega"]
-	var card_w: float = 250.0
-	var card_h: float = 120.0
-	var start_x := (vp.x - card_w * 3 - 20 * 2) / 2
-	var start_y: float = 80.0
+	var card_w := 400.0 * sc
+	var card_h := 200.0 * sc
+	var start_x := (vp.x - card_w * 3 - 30 * sc * 2) / 2
+	var start_y := 120.0 * sc
 	
 	for i in ship_ids.size():
 		var ship_id: String = ship_ids[i]
@@ -528,14 +536,17 @@ func _draw_hangar(vp: Vector2, font: Font, time: float) -> void:
 		var ship_data: Dictionary = GameData.ships_data[ship_id]
 		var col := i % 3
 		var row := i / 3
-		var x := start_x + col * (card_w + 20)
-		var y := start_y + row * (card_h + 20)
+		var x := start_x + col * (card_w + 30 * sc)
+		var y := start_y + row * (card_h + 30 * sc)
 		
 		var is_equipped := GameData.equipped_ship == ship_id
 		var is_unlocked: bool = ship_data.get("unlocked", false)
 		var ship_col: Color = stats["color"]
 		var card_color: Color = ship_col if is_unlocked else Color(0.3, 0.3, 0.3)
 		var alpha := 1.0 if is_unlocked else 0.4
+		var fs := int(24 * sc)
+		var fs_sm := int(18 * sc)
+		var fs_xs := int(20 * sc)
 		
 		# Card bg
 		draw_rect(Rect2(x, y, card_w, card_h), Color(card_color, 0.05))
@@ -543,48 +554,49 @@ func _draw_hangar(vp: Vector2, font: Font, time: float) -> void:
 			Vector2(x, y), Vector2(x + card_w, y), Vector2(x + card_w, y + card_h),
 			Vector2(x, y + card_h), Vector2(x, y)
 		])
-		draw_polyline(border, Color(card_color, 0.3 + (0.4 if is_equipped else 0.0)), 1.5)
+		draw_polyline(border, Color(card_color, 0.3 + (0.4 if is_equipped else 0.0)), 2.0 * sc)
 		
 		# Ship name
 		var name_str: String = stats["name"]
-		draw_string(font, Vector2(x + 10, y + 22), name_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(card_color, alpha))
+		draw_string(font, Vector2(x + 16 * sc, y + 35 * sc), name_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(card_color, alpha))
 		
 		# Stats
-		draw_string(font, Vector2(x + 10, y + 42), "SPD: " + str(stats["speed"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.7, 0.7, 0.7, alpha))
-		draw_string(font, Vector2(x + 90, y + 42), "FIRE: " + str(stats["fire"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.7, 0.7, 0.7, alpha))
-		draw_string(font, Vector2(x + 170, y + 42), "DEF: " + str(stats["shield"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.7, 0.7, 0.7, alpha))
+		draw_string(font, Vector2(x + 16 * sc, y + 70 * sc), "SPD: " + str(stats["speed"]), HORIZONTAL_ALIGNMENT_LEFT, -1, fs_sm, Color(0.7, 0.7, 0.7, alpha))
+		draw_string(font, Vector2(x + 150 * sc, y + 70 * sc), "FIRE: " + str(stats["fire"]), HORIZONTAL_ALIGNMENT_LEFT, -1, fs_sm, Color(0.7, 0.7, 0.7, alpha))
+		draw_string(font, Vector2(x + 280 * sc, y + 70 * sc), "DEF: " + str(stats["shield"]), HORIZONTAL_ALIGNMENT_LEFT, -1, fs_sm, Color(0.7, 0.7, 0.7, alpha))
 		
 		# Status
 		if is_equipped:
-			NeonIcons.draw_checkmark(self, Vector2(x + 18, y + card_h - 20), 6.0)
-			draw_string(font, Vector2(x + 30, y + card_h - 15), "EQUIPPED", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 0.5))
+			NeonIcons.draw_checkmark(self, Vector2(x + 25 * sc, y + card_h - 35 * sc), 10.0 * sc)
+			draw_string(font, Vector2(x + 45 * sc, y + card_h - 25 * sc), "EQUIPPED", HORIZONTAL_ALIGNMENT_LEFT, -1, fs_xs, Color(0, 1, 0.5))
 		elif is_unlocked:
-			draw_string(font, Vector2(x + 10, y + card_h - 15), "TAP TO EQUIP", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 1, 0.6))
+			draw_string(font, Vector2(x + 16 * sc, y + card_h - 25 * sc), "TAP TO EQUIP", HORIZONTAL_ALIGNMENT_LEFT, -1, fs_xs, Color(0, 1, 1, 0.6))
 		else:
 			var price_str := ""
 			if stats["price_coins"] > 0:
 				price_str = str(stats["price_coins"])
-				NeonIcons.draw_lock(self, Vector2(x + 18, y + card_h - 20), 6.0)
-				NeonIcons.draw_coin(self, Vector2(x + 38, y + card_h - 20), 5.0)
-				draw_string(font, Vector2(x + 48, y + card_h - 15), price_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))
+				NeonIcons.draw_lock(self, Vector2(x + 25 * sc, y + card_h - 35 * sc), 10.0 * sc)
+				NeonIcons.draw_coin(self, Vector2(x + 55 * sc, y + card_h - 35 * sc), 8.0 * sc)
+				draw_string(font, Vector2(x + 72 * sc, y + card_h - 25 * sc), price_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs_xs, Color(0.6, 0.6, 0.6))
 			else:
 				price_str = str(stats["price_gems"])
-				NeonIcons.draw_lock(self, Vector2(x + 18, y + card_h - 20), 6.0)
-				NeonIcons.draw_gem(self, Vector2(x + 38, y + card_h - 20), 5.0)
-				draw_string(font, Vector2(x + 48, y + card_h - 15), price_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))
+				NeonIcons.draw_lock(self, Vector2(x + 25 * sc, y + card_h - 35 * sc), 10.0 * sc)
+				NeonIcons.draw_gem(self, Vector2(x + 55 * sc, y + card_h - 35 * sc), 8.0 * sc)
+				draw_string(font, Vector2(x + 72 * sc, y + card_h - 25 * sc), price_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs_xs, Color(0.6, 0.6, 0.6))
 
 func _handle_hangar_tap(pos: Vector2, vp: Vector2) -> void:
+	var sc := vp.y / 1080.0
 	var ship_ids := ["phoenix", "viper", "nebula", "titan", "shadow", "omega"]
-	var card_w: float = 250.0
-	var card_h: float = 120.0
-	var start_x := (vp.x - card_w * 3 - 20 * 2) / 2
-	var start_y: float = 80.0
+	var card_w := 400.0 * sc
+	var card_h := 200.0 * sc
+	var start_x := (vp.x - card_w * 3 - 30 * sc * 2) / 2
+	var start_y := 120.0 * sc
 	
 	for i in ship_ids.size():
 		var col := i % 3
 		var row := i / 3
-		var x := start_x + col * (card_w + 20)
-		var y := start_y + row * (card_h + 20)
+		var x := start_x + col * (card_w + 30 * sc)
+		var y := start_y + row * (card_h + 30 * sc)
 		
 		if Rect2(x, y, card_w, card_h).has_point(pos):
 			var ship_id: String = ship_ids[i]
@@ -594,14 +606,18 @@ func _handle_hangar_tap(pos: Vector2, vp: Vector2) -> void:
 				GameData.unlock_ship(ship_id)
 
 func _draw_upgrades(vp: Vector2, font: Font) -> void:
+	var sc := vp.y / 1080.0
 	var title := "UPGRADES"
-	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
-	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0, 1, 1))
+	var title_fs := int(40 * sc)
+	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs)
+	draw_string(font, Vector2((vp.x - ts.x) / 2, 60 * sc), title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs, Color(0, 1, 1))
 	
 	var upgrade_ids := ["fire_rate", "thrust_power", "shield_duration", "bomb_power", "magnet_range", "extra_life", "extra_bomb", "score_bonus"]
-	var card_h: float = 55.0
-	var card_w: float = vp.x - 80
-	var start_y: float = 70.0
+	var card_h := 90.0 * sc
+	var card_w := vp.x - 120 * sc
+	var start_y := 110.0 * sc
+	var fs := int(24 * sc)
+	var fs_sm := int(18 * sc)
 	
 	for i in upgrade_ids.size():
 		var uid: String = upgrade_ids[i]
@@ -609,70 +625,76 @@ func _draw_upgrades(vp: Vector2, font: Font) -> void:
 		var level: int = GameData.upgrades.get(uid, 0)
 		var max_level: int = config["max"]
 		var cost := GameData.get_upgrade_cost(uid)
-		var y := start_y + i * (card_h + 8)
-		var x: float = 40.0
+		var y := start_y + i * (card_h + 12 * sc)
+		var x := 60.0 * sc
 		
 		# Card bg
 		draw_rect(Rect2(x, y, card_w, card_h), Color(0.1, 0.1, 0.15, 0.6))
+		draw_rect(Rect2(x, y, card_w, card_h), Color(0.3, 0.3, 0.4, 0.2), false, 1.0 * sc)
 		
 		# Icon + Name
 		var name_str: String = config["icon"] + " " + config["name"]
-		draw_string(font, Vector2(x + 10, y + 20), name_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1, 1, 1, 0.9))
+		draw_string(font, Vector2(x + 16 * sc, y + 32 * sc), name_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1, 0.9))
 		
 		# Level
 		var lvl_str := "Lv." + str(level) + "/" + str(max_level)
-		draw_string(font, Vector2(x + 200, y + 20), lvl_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 1, 0.7))
+		draw_string(font, Vector2(x + 320 * sc, y + 32 * sc), lvl_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs_sm, Color(0, 1, 1, 0.7))
 		
 		# Progress bar
-		var bar_x := x + 280
-		var bar_w: float = 150.0
+		var bar_x := x + 460 * sc
+		var bar_w := 250.0 * sc
 		var ratio := float(level) / float(max_level)
-		draw_rect(Rect2(bar_x, y + 10, bar_w, 10), Color(0.2, 0.2, 0.2, 0.5))
-		draw_rect(Rect2(bar_x, y + 10, bar_w * ratio, 10), Color(0, 1, 1, 0.6))
+		draw_rect(Rect2(bar_x, y + 18 * sc, bar_w, 16 * sc), Color(0.2, 0.2, 0.2, 0.5))
+		draw_rect(Rect2(bar_x, y + 18 * sc, bar_w * ratio, 16 * sc), Color(0, 1, 1, 0.6))
 		
 		# Effect
 		var eff: String = config["effect"]
-		draw_string(font, Vector2(x + 10, y + 42), eff, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.5, 0.5, 0.5))
+		draw_string(font, Vector2(x + 16 * sc, y + 68 * sc), eff, HORIZONTAL_ALIGNMENT_LEFT, -1, fs_sm, Color(0.5, 0.5, 0.5))
 		
 		# Cost / Max button
 		if level >= max_level:
-			draw_string(font, Vector2(x + card_w - 80, y + 35), "MAX", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1, 0.85, 0.2))
+			draw_string(font, Vector2(x + card_w - 120 * sc, y + 55 * sc), "MAX", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 0.85, 0.2))
 		else:
 			var can_afford := GameData.total_coins >= cost
 			var cost_color := Color(0.2, 1, 0.4) if can_afford else Color(0.5, 0.5, 0.5)
-			NeonIcons.draw_coin(self, Vector2(x + card_w - 100, y + 28), 5.0, cost_color)
-			draw_string(font, Vector2(x + card_w - 88, y + 35), str(cost), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, cost_color)
+			NeonIcons.draw_coin(self, Vector2(x + card_w - 150 * sc, y + 45 * sc), 8.0 * sc, cost_color)
+			draw_string(font, Vector2(x + card_w - 130 * sc, y + 55 * sc), str(cost), HORIZONTAL_ALIGNMENT_LEFT, -1, fs_sm, cost_color)
 
 func _handle_upgrade_tap(pos: Vector2, vp: Vector2) -> void:
+	var sc := vp.y / 1080.0
 	var upgrade_ids := ["fire_rate", "thrust_power", "shield_duration", "bomb_power", "magnet_range", "extra_life", "extra_bomb", "score_bonus"]
-	var card_h: float = 55.0
-	var start_y: float = 70.0
-	var card_w := vp.x - 80
+	var card_h := 90.0 * sc
+	var start_y := 110.0 * sc
+	var card_w := vp.x - 120 * sc
 	
 	for i in upgrade_ids.size():
-		var y := start_y + i * (card_h + 8)
-		if Rect2(40, y, card_w, card_h).has_point(pos):
+		var y := start_y + i * (card_h + 12 * sc)
+		if Rect2(60 * sc, y, card_w, card_h).has_point(pos):
 			GameData.buy_upgrade(upgrade_ids[i])
 
 func _draw_pass(vp: Vector2, font: Font) -> void:
+	var sc := vp.y / 1080.0
 	var title := "GALACTIC PASS"
-	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
-	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0.6, 0.3, 1))
+	var title_fs := int(40 * sc)
+	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs)
+	draw_string(font, Vector2((vp.x - ts.x) / 2, 60 * sc), title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs, Color(0.6, 0.3, 1))
 	if battle_pass_screen:
 		battle_pass_screen.visible = (selected_tab == 2)
 
 func _draw_missions(vp: Vector2, font: Font) -> void:
+	var sc := vp.y / 1080.0
 	var title := "MISSIONS"
-	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
-	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(1, 0.8, 0))
-	# Show missions sub-screen
+	var title_fs := int(40 * sc)
+	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs)
+	draw_string(font, Vector2((vp.x - ts.x) / 2, 60 * sc), title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs, Color(1, 0.8, 0))
 	if missions_screen:
 		missions_screen.visible = (selected_tab == 3)
 
 func _draw_shop(vp: Vector2, font: Font) -> void:
+	var sc := vp.y / 1080.0
 	var title := "SHOP"
-	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
-	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0, 1, 0.5))
-	# Show shop sub-screen
+	var title_fs := int(40 * sc)
+	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs)
+	draw_string(font, Vector2((vp.x - ts.x) / 2, 60 * sc), title, HORIZONTAL_ALIGNMENT_CENTER, -1, title_fs, Color(0, 1, 0.5))
 	if shop_screen:
 		shop_screen.visible = (selected_tab == 4)
