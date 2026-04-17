@@ -160,9 +160,7 @@ func _handle_touch(pos: Vector2) -> void:
 	if lb_rect.has_point(pos):
 		_hide_subscreens()
 		if leaderboard_screen:
-			leaderboard_screen.visible = not leaderboard_screen.visible
-		if achievements_screen:
-			achievements_screen.visible = false
+			leaderboard_screen.show_popup()
 		return
 	
 	# Achievements button
@@ -171,9 +169,7 @@ func _handle_touch(pos: Vector2) -> void:
 	if ach_rect.has_point(pos):
 		_hide_subscreens()
 		if achievements_screen:
-			achievements_screen.visible = not achievements_screen.visible
-		if leaderboard_screen:
-			leaderboard_screen.visible = false
+			achievements_screen.show_popup()
 		return
 
 func _hide_subscreens() -> void:
@@ -184,9 +180,9 @@ func _hide_subscreens() -> void:
 	if battle_pass_screen:
 		battle_pass_screen.visible = false
 	if leaderboard_screen:
-		leaderboard_screen.visible = false
+		leaderboard_screen.hide_popup()
 	if achievements_screen:
-		achievements_screen.visible = false
+		achievements_screen.hide_popup()
 
 func _start_game() -> void:
 	get_tree().change_scene_to_file("res://scenes/game/game.tscn")
