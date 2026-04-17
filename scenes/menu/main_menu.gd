@@ -6,6 +6,9 @@ var play_glow: float = 0.0
 var selected_tab: int = -1  # -1 = hub, 0=hangar, 1=upgrade, 2=pass, 3=mission, 4=shop
 var star_bg: Array[Dictionary] = []
 var settings_screen: Control = null
+var daily_reward: Control = null
+var missions_screen: Control = null
+var shop_screen: Control = null
 
 func _ready() -> void:
 	_generate_stars()
@@ -15,6 +18,33 @@ func _ready() -> void:
 	settings_screen.anchor_right = 1.0
 	settings_screen.anchor_bottom = 1.0
 	add_child(settings_screen)
+	
+	# Create daily reward popup
+	daily_reward = load("res://scenes/menu/daily_reward.gd").new()
+	daily_reward.anchors_preset = Control.PRESET_FULL_RECT
+	daily_reward.anchor_right = 1.0
+	daily_reward.anchor_bottom = 1.0
+	add_child(daily_reward)
+	
+	# Create missions screen
+	missions_screen = load("res://scenes/menu/missions_screen.gd").new()
+	missions_screen.anchors_preset = Control.PRESET_FULL_RECT
+	missions_screen.anchor_right = 1.0
+	missions_screen.anchor_bottom = 1.0
+	missions_screen.visible = false
+	add_child(missions_screen)
+	
+	# Create shop screen
+	shop_screen = load("res://scenes/menu/shop_screen.gd").new()
+	shop_screen.anchors_preset = Control.PRESET_FULL_RECT
+	shop_screen.anchor_right = 1.0
+	shop_screen.anchor_bottom = 1.0
+	shop_screen.visible = false
+	add_child(shop_screen)
+	
+	# Auto-show daily reward if unclaimed
+	if daily_reward.has_method("can_claim") and daily_reward.can_claim():
+		daily_reward.show_popup()
 
 func _generate_stars() -> void:
 	for i in 100:
@@ -43,6 +73,7 @@ func _handle_touch(pos: Vector2) -> void:
 	if selected_tab >= 0:
 		# Check back button
 		if pos.x < 100 and pos.y < 60:
+			_hide_subscreens()
 			selected_tab = -1
 			return
 		
@@ -72,6 +103,12 @@ func _handle_touch(pos: Vector2) -> void:
 		var tab_idx := int(pos.x / tab_width)
 		if tab_idx >= 0 and tab_idx < 5:
 			selected_tab = tab_idx
+
+func _hide_subscreens() -> void:
+	if missions_screen:
+		missions_screen.visible = false
+	if shop_screen:
+		shop_screen.visible = false
 
 func _start_game() -> void:
 	get_tree().change_scene_to_file("res://scenes/game/game.tscn")
@@ -356,10 +393,14 @@ func _draw_missions(vp: Vector2, font: Font) -> void:
 	var title := "🎯 MISSIONS"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
 	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(1, 0.8, 0))
-	draw_string(font, Vector2(vp.x / 2 - 80, vp.y / 2), "Coming Soon...", HORIZONTAL_ALIGNMENT_CENTER, -1, 18, Color(0.5, 0.5, 0.5))
+	# Show missions sub-screen
+	if missions_screen:
+		missions_screen.visible = (selected_tab == 3)
 
 func _draw_shop(vp: Vector2, font: Font) -> void:
 	var title := "🛒 SHOP"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
 	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0, 1, 0.5))
-	draw_string(font, Vector2(vp.x / 2 - 80, vp.y / 2), "Coming Soon...", HORIZONTAL_ALIGNMENT_CENTER, -1, 18, Color(0.5, 0.5, 0.5))
+	# Show shop sub-screen
+	if shop_screen:
+		shop_screen.visible = (selected_tab == 4)

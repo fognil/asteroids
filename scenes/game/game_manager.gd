@@ -302,6 +302,7 @@ func _on_player_died() -> void:
 
 func _on_asteroid_destroyed(pos: Vector2, size_name: String, _type: String) -> void:
 	combo_timer = COMBO_TIMEOUT
+	GameData.total_asteroids_destroyed += 1
 	
 	# Spawn coins from destroyed asteroid
 	_spawn_coins_at(pos, size_name)

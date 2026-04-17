@@ -103,6 +103,7 @@ func end_game() -> void:
 	# Persist session earnings
 	total_coins += coins
 	total_coins_earned += coins
+	total_games_played += 1
 	
 	if wave > best_wave:
 		best_wave = wave
