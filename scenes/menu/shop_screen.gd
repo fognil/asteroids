@@ -6,7 +6,7 @@ const COIN_PACKS := [
 	{"name": "Pile", "coins": 1200, "price": "$1.99", "bonus": "+20%"},
 	{"name": "Chest", "coins": 3500, "price": "$4.99", "bonus": "+40%"},
 	{"name": "Vault", "coins": 8000, "price": "$9.99", "bonus": "+60%"},
-	{"name": "Mega Vault", "coins": 20000, "price": "$19.99", "bonus": "+100% ⭐"},
+	{"name": "Mega Vault", "coins": 20000, "price": "$19.99", "bonus": "+100% BEST"},
 ]
 
 const GEM_PACKS := [
@@ -17,9 +17,9 @@ const GEM_PACKS := [
 ]
 
 const SPECIAL_OFFERS := [
-	{"name": "🚀 Starter Pack", "desc": "💰2000 + 💎20 + Viper Ship", "price": "$1.99"},
-	{"name": "🚫 No Ads", "desc": "Remove ALL ad placements", "price": "$4.99"},
-	{"name": "⭐ VIP Pass", "desc": "×2 coins permanent + skin", "price": "$9.99"},
+	{"name": "Starter Pack", "desc": "2000 coins + 20 gems + Viper Ship", "price": "$1.99"},
+	{"name": "No Ads", "desc": "Remove ALL ad placements", "price": "$4.99"},
+	{"name": "VIP Pass", "desc": "x2 coins permanent + skin", "price": "$9.99"},
 ]
 
 var active_tab: int = 0  # 0=coins, 1=gems, 2=offers
@@ -59,7 +59,7 @@ func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	
 	# Sub-tabs
-	var tab_names := ["💰 Coins", "💎 Gems", "🎁 Offers"]
+	var tab_names := ["Coins", "Gems", "Offers"]
 	var tab_w := (vp.x - 80) / 3.0
 	for i in 3:
 		var tx := 40 + float(i) * tab_w
@@ -89,7 +89,8 @@ func _draw_coin_packs(vp: Vector2, font: Font) -> void:
 		draw_rect(Rect2(x, y, card_w, card_h), Color(0.08, 0.08, 0.12, 0.6))
 		
 		var pack_name: String = pack["name"]
-		draw_string(font, Vector2(x + 15, y + 22), "💰 " + pack_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color(1, 0.85, 0.2))
+		NeonIcons.draw_coin(self, Vector2(x + 22, y + 15), 6.0)
+		draw_string(font, Vector2(x + 35, y + 22), pack_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color(1, 0.85, 0.2))
 		
 		var coins_val: int = pack["coins"]
 		draw_string(font, Vector2(x + 15, y + 45), str(coins_val) + " coins", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))
@@ -119,7 +120,8 @@ func _draw_gem_packs(vp: Vector2, font: Font) -> void:
 		draw_rect(Rect2(x, y, card_w, card_h), Color(0.06, 0.06, 0.12, 0.6))
 		
 		var pack_name: String = pack["name"]
-		draw_string(font, Vector2(x + 15, y + 22), "💎 " + pack_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color(0.4, 0.8, 1))
+		NeonIcons.draw_gem(self, Vector2(x + 22, y + 15), 6.0)
+		draw_string(font, Vector2(x + 35, y + 22), pack_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color(0.4, 0.8, 1))
 		
 		var gems_val: int = pack["gems"]
 		draw_string(font, Vector2(x + 15, y + 45), str(gems_val) + " gems", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))

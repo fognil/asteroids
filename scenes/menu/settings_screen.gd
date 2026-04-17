@@ -90,7 +90,8 @@ func _draw() -> void:
 	draw_polyline(border, Color(0, 1, 1, 0.3), 1.5)
 	
 	# Title
-	draw_string(font, Vector2(panel_x + 20, panel_y + 30), "⚙️ SETTINGS", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(0, 1, 1))
+	NeonIcons.draw_gear(self, Vector2(panel_x + 30, panel_y + 22), 10.0, Color(0, 1, 1))
+	draw_string(font, Vector2(panel_x + 48, panel_y + 30), "SETTINGS", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(0, 1, 1))
 	# Close
 	draw_string(font, Vector2(panel_x + panel_w - 40, panel_y + 30), "✕", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(1, 1, 1, 0.5))
 	

@@ -126,12 +126,13 @@ func _draw() -> void:
 	draw_polyline(border, Color(1, 0.85, 0.2, 0.4), 1.5)
 	
 	# Title
-	var title := "🎁 DAILY REWARD"
+	var title := "DAILY REWARD"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 20)
+	NeonIcons.draw_star(self, Vector2((vp.x - ts.x) / 2 - 16, py + 22), 8.0, Color(1, 0.85, 0.2))
 	draw_string(font, Vector2((vp.x - ts.x) / 2, py + 30), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 20, Color(1, 0.85, 0.2))
 	
 	# Streak
-	draw_string(font, Vector2(px + 20, py + 55), "🔥 Streak: " + str(streak) + " days", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1, 0.5, 0.2))
+	draw_string(font, Vector2(px + 20, py + 55), "Streak: " + str(streak) + " days", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1, 0.5, 0.2))
 	
 	# Day cards
 	var current_day := day_index % REWARDS.size()
@@ -167,16 +168,16 @@ func _draw() -> void:
 		# Reward
 		var coin_val: int = reward["coins"]
 		var gem_val: int = reward["gems"]
-		var reward_str := ""
 		if coin_val > 0:
-			reward_str = "💰" + str(coin_val)
+			NeonIcons.draw_coin(self, Vector2(cx + 12, cy + 33), 5.0)
+			draw_string(font, Vector2(cx + 22, cy + 40), str(coin_val), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1, 1, 1, 0.8))
 		else:
-			reward_str = "💎" + str(gem_val)
-		draw_string(font, Vector2(cx + 5, cy + 40), reward_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1, 1, 1, 0.8))
+			NeonIcons.draw_gem(self, Vector2(cx + 12, cy + 33), 5.0)
+			draw_string(font, Vector2(cx + 22, cy + 40), str(gem_val), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1, 1, 1, 0.8))
 		
 		# Status
 		if is_claimed:
-			draw_string(font, Vector2(cx + 20, cy + 60), "✅", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0, 1, 0.5))
+			NeonIcons.draw_checkmark(self, Vector2(cx + 35, cy + 55), 7.0, Color(0, 1, 0.5))
 		elif is_today:
 			draw_string(font, Vector2(cx + 5, cy + 60), "◀ TODAY", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(1, 0.85, 0.2))
 	
@@ -191,7 +192,7 @@ func _draw() -> void:
 		var bts := font.get_string_size(btn_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 18)
 		draw_string(font, Vector2(btn_x + (btn_w - bts.x) / 2, btn_y + 28), btn_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 18, Color(0, 1, 0.5))
 	else:
-		var done_text := "✅ Collected! Tap to close"
+		var done_text := "Collected! Tap to close"
 		var dts := font.get_string_size(done_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 14)
 		draw_string(font, Vector2(btn_x + (btn_w - dts.x) / 2, btn_y + 25), done_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 14, Color(0.5, 0.5, 0.5))
 

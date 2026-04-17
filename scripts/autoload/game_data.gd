@@ -58,14 +58,14 @@ var upgrades: Dictionary = {
 }
 
 const UPGRADE_CONFIG := {
-	"fire_rate": { "name": "Fire Rate", "icon": "🔫", "max": 10, "base_cost": 300, "cost_mult": 1.5, "effect": "+15% fire rate / level" },
-	"thrust_power": { "name": "Thrust Power", "icon": "🚀", "max": 10, "base_cost": 250, "cost_mult": 1.5, "effect": "+10% thrust / level" },
-	"shield_duration": { "name": "Shield Duration", "icon": "🛡️", "max": 10, "base_cost": 400, "cost_mult": 1.5, "effect": "+10% shield / level" },
-	"bomb_power": { "name": "Bomb Power", "icon": "💣", "max": 10, "base_cost": 500, "cost_mult": 1.5, "effect": "+15% blast / level" },
-	"magnet_range": { "name": "Magnet Range", "icon": "🧲", "max": 10, "base_cost": 200, "cost_mult": 1.4, "effect": "+15% range / level" },
-	"extra_life": { "name": "Starting Lives", "icon": "❤️", "max": 3, "base_cost": 2000, "cost_mult": 2.0, "effect": "+1 starting life" },
-	"extra_bomb": { "name": "Starting Bombs", "icon": "💣", "max": 3, "base_cost": 1500, "cost_mult": 2.0, "effect": "+1 starting bomb" },
-	"score_bonus": { "name": "Score Bonus", "icon": "⭐", "max": 10, "base_cost": 350, "cost_mult": 1.5, "effect": "+5% score / level" },
+	"fire_rate": { "name": "Fire Rate", "icon": "fire", "max": 10, "base_cost": 300, "cost_mult": 1.5, "effect": "+15% fire rate / level" },
+	"thrust_power": { "name": "Thrust Power", "icon": "thrust", "max": 10, "base_cost": 250, "cost_mult": 1.5, "effect": "+10% thrust / level" },
+	"shield_duration": { "name": "Shield Duration", "icon": "shield", "max": 10, "base_cost": 400, "cost_mult": 1.5, "effect": "+10% shield / level" },
+	"bomb_power": { "name": "Bomb Power", "icon": "bomb", "max": 10, "base_cost": 500, "cost_mult": 1.5, "effect": "+15% blast / level" },
+	"magnet_range": { "name": "Magnet Range", "icon": "magnet", "max": 10, "base_cost": 200, "cost_mult": 1.4, "effect": "+15% range / level" },
+	"extra_life": { "name": "Starting Lives", "icon": "heart", "max": 3, "base_cost": 2000, "cost_mult": 2.0, "effect": "+1 starting life" },
+	"extra_bomb": { "name": "Starting Bombs", "icon": "bomb", "max": 3, "base_cost": 1500, "cost_mult": 2.0, "effect": "+1 starting bomb" },
+	"score_bonus": { "name": "Score Bonus", "icon": "star", "max": 10, "base_cost": 350, "cost_mult": 1.5, "effect": "+5% score / level" },
 }
 
 # --- Settings ---

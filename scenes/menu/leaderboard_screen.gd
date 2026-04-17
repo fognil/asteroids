@@ -44,7 +44,8 @@ func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	
 	# Header
-	draw_string(font, Vector2(40, 85), "🏆 TOP 10 SCORES", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 0.85, 0.2))
+	NeonIcons.draw_trophy(self, Vector2(48, 78), 8.0, Color(1, 0.85, 0.2))
+	draw_string(font, Vector2(62, 85), "TOP 10 SCORES", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 0.85, 0.2))
 	
 	if entries.is_empty():
 		draw_string(font, Vector2(vp.x / 2 - 60, vp.y / 2), "No scores yet!", HORIZONTAL_ALIGNMENT_CENTER, -1, 14, Color(0.5, 0.5, 0.5))

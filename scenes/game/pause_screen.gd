@@ -85,18 +85,21 @@ func _draw() -> void:
 	var btn_h: float = 45.0
 	
 	# Title
-	var title := "⏸ PAUSED"
+	var title := "PAUSED"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 28)
+	NeonIcons.draw_pause(self, Vector2(vp.x / 2 - ts.x / 2 - 22, cy - 108), 10.0, Color(0, 1, 1))
 	draw_string(font, Vector2((vp.x - ts.x) / 2, cy - 100), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 28, Color(0, 1, 1))
 	
 	# Resume button
-	_draw_button(font, cx, cy - 60, btn_w, btn_h, "▶ RESUME", Color(0, 1, 0.5))
+	_draw_button(font, cx, cy - 60, btn_w, btn_h, "RESUME", Color(0, 1, 0.5))
+	NeonIcons.draw_play(self, Vector2(cx - btn_w / 2 + 16, cy - 60 + 22), 8.0, Color(0, 1, 0.5))
 	
 	# Settings button
-	_draw_button(font, cx, cy, btn_w, btn_h, "⚙️ SETTINGS", Color(0.5, 0.5, 0.5))
+	_draw_button(font, cx, cy, btn_w, btn_h, "SETTINGS", Color(0.5, 0.5, 0.5))
+	NeonIcons.draw_gear(self, Vector2(cx - btn_w / 2 + 16, cy + 22), 8.0, Color(0.5, 0.5, 0.5))
 	
 	# Quit button
-	_draw_button(font, cx, cy + 60, btn_w, btn_h, "✖ QUIT", Color(1, 0.3, 0.3))
+	_draw_button(font, cx, cy + 60, btn_w, btn_h, "QUIT", Color(1, 0.3, 0.3))
 
 func _draw_button(font: Font, cx: float, y: float, w: float, h: float, text: String, col: Color) -> void:
 	var x := cx - w / 2

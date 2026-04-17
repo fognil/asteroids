@@ -38,6 +38,6 @@ func _draw() -> void:
 	draw_arc(Vector2.ZERO, button_radius, 0, TAU, 32, Color(1, 0.6, 0, 0.3), 2.0, true)
 	
 	var font := ThemeDB.fallback_font
-	var text := "💣%d" % GameData.bombs
-	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, 12)
-	draw_string(font, Vector2(-text_size.x / 2, 5), text, HORIZONTAL_ALIGNMENT_CENTER, -1, 12, Color(1, 1, 1, 0.8))
+	var text := "BOMB x%d" % GameData.bombs
+	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, 10)
+	draw_string(font, Vector2(-text_size.x / 2, 5), text, HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(1, 1, 1, 0.8))

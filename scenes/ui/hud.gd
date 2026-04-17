@@ -35,7 +35,7 @@ func _process(delta: float) -> void:
 	high_label.text = "HIGH: " + str(GameData.high_score)
 	
 	# Coins
-	wave_label.text = "WAVE: " + str(GameData.wave) + "  🪙 " + str(GameData.coins)
+	wave_label.text = "WAVE: " + str(GameData.wave) + "  COINS: " + str(GameData.coins)
 	
 	# Wave announce fade
 	if wave_announce_timer > 0:

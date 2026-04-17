@@ -78,7 +78,8 @@ func _draw() -> void:
 	
 	# Header + count
 	var done_count := claimed.size()
-	draw_string(font, Vector2(40, 85), "🎖️ ACHIEVEMENTS: " + str(done_count) + "/" + str(ACHIEVEMENTS.size()), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1, 0.85, 0.2))
+	NeonIcons.draw_medal(self, Vector2(48, 78), 8.0, Color(1, 0.85, 0.2))
+	draw_string(font, Vector2(62, 85), "ACHIEVEMENTS: " + str(done_count) + "/" + str(ACHIEVEMENTS.size()), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1, 0.85, 0.2))
 	
 	var card_h: float = 45.0
 	var card_w := vp.x - 80
@@ -119,7 +120,8 @@ func _draw() -> void:
 		# Reward
 		var gem_val: int = ach["gems"]
 		var reward_col := Color(0, 1, 0.5, 0.5) if is_claimed else Color(0.4, 0.8, 1, 0.5)
-		draw_string(font, Vector2(x + card_w - 50, y + 18), "💎" + str(gem_val), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, reward_col)
+		NeonIcons.draw_gem(self, Vector2(x + card_w - 45, y + 12), 5.0, reward_col)
+		draw_string(font, Vector2(x + card_w - 35, y + 18), str(gem_val), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, reward_col)
 		
 		if is_claimed:
-			draw_string(font, Vector2(x + card_w - 50, y + 35), "✅", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 0.5, 0.5))
+			NeonIcons.draw_checkmark(self, Vector2(x + card_w - 42, y + 33), 5.0, Color(0, 1, 0.5, 0.5))

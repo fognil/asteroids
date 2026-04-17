@@ -99,8 +99,9 @@ func _draw_game_over(vp: Vector2) -> void:
 	draw_string(font, Vector2((vp.x - score_size.x) / 2, vp.y * 0.40), score_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 20, Color(1, 1, 1, 0.8))
 	
 	# Coins earned
-	var coins_text := "💰 +" + str(GameData.coins) + " coins earned"
+	var coins_text := "+" + str(GameData.coins) + " coins earned"
 	var cs := font.get_string_size(coins_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 14)
+	NeonIcons.draw_coin(self, Vector2((vp.x - cs.x) / 2 - 14, vp.y * 0.45 - 5), 5.0)
 	draw_string(font, Vector2((vp.x - cs.x) / 2, vp.y * 0.45), coins_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 14, Color(1, 0.85, 0.2, 0.7))
 	
 	# Ad buttons
@@ -109,14 +110,16 @@ func _draw_game_over(vp: Vector2) -> void:
 		var rv_y := vp.y * 0.52
 		draw_rect(Rect2(rv_x, rv_y, 120, 35), Color(0, 0.15, 0, 0.6))
 		draw_rect(Rect2(rv_x, rv_y, 120, 35), Color(0, 1, 0.5, 0.4), false, 1.0)
-		draw_string(font, Vector2(rv_x + 10, rv_y + 23), "📺 Revive", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0, 1, 0.5))
+		NeonIcons.draw_tv(self, Vector2(rv_x + 15, rv_y + 17), 8.0, Color(0, 1, 0.5))
+		draw_string(font, Vector2(rv_x + 30, rv_y + 23), "Revive", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0, 1, 0.5))
 	
 	if AdManager.can_show_ad("double_coins"):
 		var dc_x := vp.x / 2 + 10
 		var dc_y := vp.y * 0.52
 		draw_rect(Rect2(dc_x, dc_y, 120, 35), Color(0.15, 0.1, 0, 0.6))
 		draw_rect(Rect2(dc_x, dc_y, 120, 35), Color(1, 0.85, 0.2, 0.4), false, 1.0)
-		draw_string(font, Vector2(dc_x + 10, dc_y + 23), "📺 ×2 Coins", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1, 0.85, 0.2))
+		NeonIcons.draw_tv(self, Vector2(dc_x + 15, dc_y + 17), 8.0, Color(1, 0.85, 0.2))
+		draw_string(font, Vector2(dc_x + 30, dc_y + 23), "x2 Coins", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1, 0.85, 0.2))
 	
 	var restart_text := "Tap to Restart"
 	var rs_size := font.get_string_size(restart_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 16)
@@ -126,11 +129,10 @@ func _draw_pause_button(vp: Vector2) -> void:
 	var font := ThemeDB.fallback_font
 	if GameData.lives <= 0:
 		return
-	# Pause icon top-right
-	var px := vp.x - 55
-	var py: float = 15.0
-	draw_rect(Rect2(px, py, 10, 22), Color(0.8, 0.8, 0.8, 0.5))
-	draw_rect(Rect2(px + 15, py, 10, 22), Color(0.8, 0.8, 0.8, 0.5))
+	# Pause icon top-right (drawn with NeonIcons)
+	var px := vp.x - 45
+	var py: float = 22.0
+	NeonIcons.draw_pause(self, Vector2(px, py), 12.0, Color(0.8, 0.8, 0.8, 0.5))
 
 func _draw_boss_hp(vp: Vector2) -> void:
 	var boss := get_tree().get_first_node_in_group("boss")

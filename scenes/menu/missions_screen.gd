@@ -220,19 +220,26 @@ func _draw_mission_card(font: Font, x: float, y: float, w: float, h: float, m: D
 	# Reward
 	var coin_val: int = m.get("coins", 0)
 	var gem_val: int = m.get("gems", 0)
-	var reward_str := ""
-	if coin_val > 0:
-		reward_str = "💰" + str(coin_val)
-	else:
-		reward_str = "💎" + str(gem_val)
+	var reward_col := Color(1, 0.85, 0.2)
 	
 	if is_claimed:
-		draw_string(font, Vector2(x + w - 80, y + 20), "✅ DONE", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 0.5, 0.6))
+		NeonIcons.draw_checkmark(self, Vector2(x + w - 75, y + 14), 6.0, Color(0, 1, 0.5, 0.6))
+		draw_string(font, Vector2(x + w - 62, y + 20), "DONE", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 0.5, 0.6))
 	elif complete:
 		draw_string(font, Vector2(x + w - 80, y + 20), "CLAIM", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 0.5))
-		draw_string(font, Vector2(x + w - 80, y + 38), reward_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 0.85, 0.2))
+		if coin_val > 0:
+			NeonIcons.draw_coin(self, Vector2(x + w - 75, y + 31), 4.0, reward_col)
+			draw_string(font, Vector2(x + w - 65, y + 38), str(coin_val), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, reward_col)
+		else:
+			NeonIcons.draw_gem(self, Vector2(x + w - 75, y + 31), 4.0, Color(0.4, 0.8, 1))
+			draw_string(font, Vector2(x + w - 65, y + 38), str(gem_val), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.4, 0.8, 1))
 	else:
-		draw_string(font, Vector2(x + w - 80, y + 25), reward_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.5, 0.5, 0.5))
+		if coin_val > 0:
+			NeonIcons.draw_coin(self, Vector2(x + w - 75, y + 18), 4.0, Color(0.5, 0.5, 0.5))
+			draw_string(font, Vector2(x + w - 65, y + 25), str(coin_val), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.5, 0.5, 0.5))
+		else:
+			NeonIcons.draw_gem(self, Vector2(x + w - 75, y + 18), 4.0, Color(0.5, 0.5, 0.5))
+			draw_string(font, Vector2(x + w - 65, y + 25), str(gem_val), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.5, 0.5, 0.5))
 
 func _get_today_str() -> String:
 	var dt := Time.get_datetime_dict_from_system(true)

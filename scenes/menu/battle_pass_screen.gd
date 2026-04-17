@@ -158,19 +158,20 @@ func _draw() -> void:
 		var free_col := Color(1, 1, 1, 0.8) if unlocked else Color(0.5, 0.5, 0.5)
 		if claimed_free.has(i):
 			free_col = Color(0, 1, 0.5, 0.5)
-			free_text = "✅ " + free_text
-		draw_string(font, Vector2(x + 40, y + 20), "FREE: " + free_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, free_col)
+			NeonIcons.draw_checkmark(self, Vector2(x + 35, y + 14), 5.0, free_col)
+		draw_string(font, Vector2(x + 48, y + 20), "FREE: " + free_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, free_col)
 		
 		# Premium reward (right half)
 		var prem_text := _reward_text(tier["premium"])
+		var prem_x := x + card_w * 0.5
 		var prem_col := Color(0.6, 0.3, 1, 0.6) if not has_premium else (Color(0.6, 0.3, 1, 0.8) if unlocked else Color(0.4, 0.3, 0.5))
 		if claimed_prem.has(i):
 			prem_col = Color(0, 1, 0.5, 0.5)
-			prem_text = "✅ " + prem_text
-		var prem_x := x + card_w * 0.5
-		draw_string(font, Vector2(prem_x, y + 20), "⭐ " + prem_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, prem_col)
+			NeonIcons.draw_checkmark(self, Vector2(prem_x - 8, y + 14), 5.0, prem_col)
+		var prem_label := "PREMIUM: " + prem_text
+		draw_string(font, Vector2(prem_x, y + 20), prem_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, prem_col)
 		if not has_premium:
-			draw_string(font, Vector2(prem_x, y + 38), "🔒", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.3, 0.3, 0.3))
+			NeonIcons.draw_lock(self, Vector2(prem_x + 5, y + 30), 6.0, Color(0.3, 0.3, 0.3))
 		
 		# Claim indicator
 		if unlocked and not claimed_free.has(i):
@@ -185,12 +186,12 @@ func _draw() -> void:
 func _reward_text(reward: Dictionary) -> String:
 	var rtype: String = reward["type"]
 	match rtype:
-		"coins": return "💰" + str(reward["amount"])
-		"gems": return "💎" + str(reward["amount"])
-		"bombs": return "💣×" + str(reward["amount"])
-		"lives": return "❤️×" + str(reward["amount"])
-		"skin": return "🎨 " + str(reward["name"])
-		"trail": return "✨ " + str(reward["name"])
-		"frame": return "🖼️ " + str(reward["name"])
-		"legendary": return "🏆 " + str(reward["name"])
+		"coins": return str(reward["amount"]) + " coins"
+		"gems": return str(reward["amount"]) + " gems"
+		"bombs": return str(reward["amount"]) + " bombs"
+		"lives": return str(reward["amount"]) + " lives"
+		"skin": return "SKIN: " + str(reward["name"])
+		"trail": return "TRAIL: " + str(reward["name"])
+		"frame": return "FRAME: " + str(reward["name"])
+		"legendary": return str(reward["name"])
 		_: return str(reward)

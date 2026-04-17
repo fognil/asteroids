@@ -201,13 +201,16 @@ func _draw_status_bar(vp: Vector2, font: Font) -> void:
 	draw_rect(Rect2(0, 0, vp.x, 45), Color(0, 0, 0, 0.5))
 	
 	# Coins
-	draw_string(font, Vector2(20, 30), "💰 " + str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(1, 0.85, 0.2))
+	NeonIcons.draw_coin(self, Vector2(28, 22), 8.0)
+	draw_string(font, Vector2(42, 30), str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(1, 0.85, 0.2))
 	# Gems
-	draw_string(font, Vector2(180, 30), "💎 " + str(GameData.gems), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0.4, 0.8, 1))
+	NeonIcons.draw_gem(self, Vector2(188, 22), 8.0)
+	draw_string(font, Vector2(202, 30), str(GameData.gems), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0.4, 0.8, 1))
 	# Level
-	draw_string(font, Vector2(300, 30), "🏆 Lv." + str(GameData.player_level), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.8, 0.8, 0.8))
+	NeonIcons.draw_trophy(self, Vector2(308, 22), 8.0)
+	draw_string(font, Vector2(322, 30), "Lv." + str(GameData.player_level), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.8, 0.8, 0.8))
 	# Settings gear
-	draw_string(font, Vector2(vp.x - 50, 30), "⚙️", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(0.6, 0.6, 0.6))
+	NeonIcons.draw_gear(self, Vector2(vp.x - 35, 23), 12.0)
 
 func _draw_ship_preview(vp: Vector2, font: Font, time: float) -> void:
 	var center := Vector2(vp.x / 2, vp.y * 0.35)
@@ -257,9 +260,11 @@ func _draw_play_button(vp: Vector2, font: Font, time: float) -> void:
 	draw_polyline(border_pts, Color(0, 1, 1, 0.6 + pulse * 0.3), 2.0)
 	
 	# Text
-	var play_text := "▶  P L A Y"
+	var play_text := "P L A Y"
 	var text_size := font.get_string_size(play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 26)
-	draw_string(font, Vector2((vp.x - text_size.x) / 2, btn_y + 36), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 26, Color(0, 1, 1))
+	var text_x := (vp.x - text_size.x) / 2
+	NeonIcons.draw_play(self, Vector2(text_x - 18, btn_y + 28), 10.0, Color(0, 1, 1))
+	draw_string(font, Vector2(text_x, btn_y + 36), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 26, Color(0, 1, 1))
 
 func _draw_best_scores(vp: Vector2, font: Font) -> void:
 	var y := vp.y * 0.72
@@ -276,13 +281,13 @@ func _draw_best_scores(vp: Vector2, font: Font) -> void:
 	
 	draw_rect(Rect2(lb_x, btn_y, bw, bh), Color(0.1, 0.08, 0, 0.4))
 	draw_rect(Rect2(lb_x, btn_y, bw, bh), Color(1, 0.85, 0.2, 0.3), false, 1.0)
-	var lb_ts := font.get_string_size("🏆 Leaderboard", HORIZONTAL_ALIGNMENT_CENTER, -1, 12)
-	draw_string(font, Vector2(lb_x + (bw - lb_ts.x) / 2, btn_y + 23), "🏆 Leaderboard", HORIZONTAL_ALIGNMENT_CENTER, -1, 12, Color(1, 0.85, 0.2, 0.7))
+	NeonIcons.draw_trophy(self, Vector2(lb_x + 14, btn_y + 18), 7.0, Color(1, 0.85, 0.2, 0.7))
+	draw_string(font, Vector2(lb_x + 28, btn_y + 23), "Leaderboard", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1, 0.85, 0.2, 0.7))
 	
 	draw_rect(Rect2(ach_x, btn_y, bw, bh), Color(0.08, 0, 0.1, 0.4))
 	draw_rect(Rect2(ach_x, btn_y, bw, bh), Color(0.6, 0.3, 1, 0.3), false, 1.0)
-	var ach_ts := font.get_string_size("🎖️ Achievements", HORIZONTAL_ALIGNMENT_CENTER, -1, 12)
-	draw_string(font, Vector2(ach_x + (bw - ach_ts.x) / 2, btn_y + 23), "🎖️ Achievements", HORIZONTAL_ALIGNMENT_CENTER, -1, 12, Color(0.6, 0.3, 1, 0.7))
+	NeonIcons.draw_medal(self, Vector2(ach_x + 14, btn_y + 18), 7.0, Color(0.6, 0.3, 1, 0.7))
+	draw_string(font, Vector2(ach_x + 28, btn_y + 23), "Achievements", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.3, 1, 0.7))
 
 func _draw_nav_bar(vp: Vector2, font: Font) -> void:
 	var bar_h: float = 60.0
@@ -292,24 +297,33 @@ func _draw_nav_bar(vp: Vector2, font: Font) -> void:
 	draw_rect(Rect2(0, bar_y, vp.x, bar_h), Color(0, 0, 0, 0.7))
 	draw_line(Vector2(0, bar_y), Vector2(vp.x, bar_y), Color(0.3, 0.3, 0.3, 0.5), 1.0)
 	
-	var tabs := ["🚀 Hangar", "⬆️ Upgrade", "🎫 Pass", "🎯 Mission", "🛒 Shop"]
-	var tab_w := vp.x / 5.0
+	var tab_names := ["Hangar", "Upgrade", "Pass", "Mission", "Shop"]
+	var tab_icons: Array[Callable] = [
+		func(p: Vector2, c: Color): NeonIcons.draw_ship_icon(self, p, 7.0, c),
+		func(p: Vector2, c: Color): NeonIcons.draw_upgrade_arrow(self, p, 7.0, c),
+		func(p: Vector2, c: Color): NeonIcons.draw_ticket(self, p, 7.0, c),
+		func(p: Vector2, c: Color): NeonIcons.draw_crosshair(self, p, 7.0, c),
+		func(p: Vector2, c: Color): NeonIcons.draw_cart(self, p, 7.0, c),
+	]
 	
-	for i in tabs.size():
+	for i in tab_names.size():
 		var x := i * tab_w
 		var tab_color := Color(0.5, 0.5, 0.5, 0.6)
 		if i == selected_tab:
 			tab_color = Color(0, 1, 1, 0.9)
-		var label: String = tabs[i]
-		var label_size := font.get_string_size(label, HORIZONTAL_ALIGNMENT_CENTER, -1, 12)
-		draw_string(font, Vector2(x + (tab_w - label_size.x) / 2, bar_y + 38), label, HORIZONTAL_ALIGNMENT_CENTER, -1, 12, tab_color)
+		var icon_pos := Vector2(x + tab_w / 2, bar_y + 18)
+		tab_icons[i].call(icon_pos, tab_color)
+		var label: String = tab_names[i]
+		var label_size := font.get_string_size(label, HORIZONTAL_ALIGNMENT_CENTER, -1, 10)
+		draw_string(font, Vector2(x + (tab_w - label_size.x) / 2, bar_y + 45), label, HORIZONTAL_ALIGNMENT_CENTER, -1, 10, tab_color)
 
 # === Sub Screens ===
 func _draw_sub_screen(vp: Vector2, font: Font, time: float) -> void:
 	# Header
 	draw_rect(Rect2(0, 0, vp.x, 50), Color(0, 0, 0, 0.6))
 	draw_string(font, Vector2(20, 35), "← Back", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0, 1, 1, 0.8))
-	draw_string(font, Vector2(vp.x - 150, 35), "💰 " + str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 0.85, 0.2))
+	NeonIcons.draw_coin(self, Vector2(vp.x - 158, 27), 6.0)
+	draw_string(font, Vector2(vp.x - 145, 35), str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 0.85, 0.2))
 	
 	match selected_tab:
 		0: _draw_hangar(vp, font, time)
@@ -321,7 +335,7 @@ func _draw_sub_screen(vp: Vector2, font: Font, time: float) -> void:
 	_draw_nav_bar(vp, font)
 
 func _draw_hangar(vp: Vector2, font: Font, time: float) -> void:
-	var title := "🚀 HANGAR"
+	var title := "HANGAR"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
 	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0, 1, 1))
 	
@@ -366,16 +380,22 @@ func _draw_hangar(vp: Vector2, font: Font, time: float) -> void:
 		
 		# Status
 		if is_equipped:
-			draw_string(font, Vector2(x + 10, y + card_h - 15), "✅ EQUIPPED", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 0.5))
+			NeonIcons.draw_checkmark(self, Vector2(x + 18, y + card_h - 20), 6.0)
+			draw_string(font, Vector2(x + 30, y + card_h - 15), "EQUIPPED", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 0.5))
 		elif is_unlocked:
 			draw_string(font, Vector2(x + 10, y + card_h - 15), "TAP TO EQUIP", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0, 1, 1, 0.6))
 		else:
 			var price_str := ""
 			if stats["price_coins"] > 0:
-				price_str = "💰 " + str(stats["price_coins"])
+				price_str = str(stats["price_coins"])
+				NeonIcons.draw_lock(self, Vector2(x + 18, y + card_h - 20), 6.0)
+				NeonIcons.draw_coin(self, Vector2(x + 38, y + card_h - 20), 5.0)
+				draw_string(font, Vector2(x + 48, y + card_h - 15), price_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))
 			else:
-				price_str = "💎 " + str(stats["price_gems"])
-			draw_string(font, Vector2(x + 10, y + card_h - 15), "🔒 " + price_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))
+				price_str = str(stats["price_gems"])
+				NeonIcons.draw_lock(self, Vector2(x + 18, y + card_h - 20), 6.0)
+				NeonIcons.draw_gem(self, Vector2(x + 38, y + card_h - 20), 5.0)
+				draw_string(font, Vector2(x + 48, y + card_h - 15), price_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.6, 0.6))
 
 func _handle_hangar_tap(pos: Vector2, vp: Vector2) -> void:
 	var ship_ids := ["phoenix", "viper", "nebula", "titan", "shadow", "omega"]
@@ -398,7 +418,7 @@ func _handle_hangar_tap(pos: Vector2, vp: Vector2) -> void:
 				GameData.unlock_ship(ship_id)
 
 func _draw_upgrades(vp: Vector2, font: Font) -> void:
-	var title := "⬆️ UPGRADES"
+	var title := "UPGRADES"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
 	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0, 1, 1))
 	
@@ -442,10 +462,10 @@ func _draw_upgrades(vp: Vector2, font: Font) -> void:
 		if level >= max_level:
 			draw_string(font, Vector2(x + card_w - 80, y + 35), "MAX", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1, 0.85, 0.2))
 		else:
-			var cost_str := "💰 " + str(cost)
 			var can_afford := GameData.total_coins >= cost
 			var cost_color := Color(0.2, 1, 0.4) if can_afford else Color(0.5, 0.5, 0.5)
-			draw_string(font, Vector2(x + card_w - 100, y + 35), cost_str, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, cost_color)
+			NeonIcons.draw_coin(self, Vector2(x + card_w - 100, y + 28), 5.0, cost_color)
+			draw_string(font, Vector2(x + card_w - 88, y + 35), str(cost), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, cost_color)
 
 func _handle_upgrade_tap(pos: Vector2, vp: Vector2) -> void:
 	var upgrade_ids := ["fire_rate", "thrust_power", "shield_duration", "bomb_power", "magnet_range", "extra_life", "extra_bomb", "score_bonus"]
@@ -459,14 +479,14 @@ func _handle_upgrade_tap(pos: Vector2, vp: Vector2) -> void:
 			GameData.buy_upgrade(upgrade_ids[i])
 
 func _draw_pass(vp: Vector2, font: Font) -> void:
-	var title := "🎫 GALACTIC PASS"
+	var title := "GALACTIC PASS"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
 	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0.6, 0.3, 1))
 	if battle_pass_screen:
 		battle_pass_screen.visible = (selected_tab == 2)
 
 func _draw_missions(vp: Vector2, font: Font) -> void:
-	var title := "🎯 MISSIONS"
+	var title := "MISSIONS"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
 	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(1, 0.8, 0))
 	# Show missions sub-screen
@@ -474,7 +494,7 @@ func _draw_missions(vp: Vector2, font: Font) -> void:
 		missions_screen.visible = (selected_tab == 3)
 
 func _draw_shop(vp: Vector2, font: Font) -> void:
-	var title := "🛒 SHOP"
+	var title := "SHOP"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
 	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0, 1, 0.5))
 	# Show shop sub-screen
