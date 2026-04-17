@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://boss003"]
+[gd_scene format=3 uid="uid://boss003"]
 
 [ext_resource type="Script" path="res://scenes/bosses/comet_worm.gd" id="1"]
 

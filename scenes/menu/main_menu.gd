@@ -131,16 +131,20 @@ func _handle_touch(pos: Vector2) -> void:
 	var lb_rect := Rect2(vp.x / 2 - 140, vp.y * 0.68, 130, 35)
 	if lb_rect.has_point(pos):
 		_hide_subscreens()
-		leaderboard_screen.visible = not leaderboard_screen.visible
-		achievements_screen.visible = false
+		if leaderboard_screen:
+			leaderboard_screen.visible = not leaderboard_screen.visible
+		if achievements_screen:
+			achievements_screen.visible = false
 		return
 	
 	# Achievements button (below play, right)
 	var ach_rect := Rect2(vp.x / 2 + 10, vp.y * 0.68, 130, 35)
 	if ach_rect.has_point(pos):
 		_hide_subscreens()
-		achievements_screen.visible = not achievements_screen.visible
-		leaderboard_screen.visible = false
+		if achievements_screen:
+			achievements_screen.visible = not achievements_screen.visible
+		if leaderboard_screen:
+			leaderboard_screen.visible = false
 		return
 	
 	# Bottom nav tabs

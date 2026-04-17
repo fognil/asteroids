@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://boss004"]
+[gd_scene format=3 uid="uid://boss004"]
 
 [ext_resource type="Script" path="res://scenes/bosses/void_sentinel.gd" id="1"]
 

@@ -67,7 +67,8 @@ func _draw() -> void:
 		y = 130 + float(i) * 35
 		var entry: Dictionary = entries[i]
 		var rank_color := Color(1, 0.85, 0.2) if i == 0 else (Color(0.7, 0.7, 0.8) if i == 1 else (Color(0.7, 0.5, 0.3) if i == 2 else Color(0.5, 0.5, 0.5)))
-		var is_highlight := entry["score"] == GameData.high_score
+		var entry_score: int = entry["score"]
+		var is_highlight: bool = (entry_score == GameData.high_score)
 		
 		# Background for highlight
 		if is_highlight:
