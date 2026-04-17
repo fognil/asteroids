@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://game001"]
+[gd_scene load_steps=11 format=3 uid="uid://game001"]
 
 [ext_resource type="Script" path="res://scenes/game/game_manager.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scenes/ui/components/fire_button.gd" id="6"]
 [ext_resource type="Script" path="res://scenes/ui/components/bomb_button.gd" id="7"]
 [ext_resource type="Script" path="res://scenes/game/camera_shake.gd" id="8"]
+[ext_resource type="Script" path="res://scenes/ui/hud_draw.gd" id="9"]
 
 [sub_resource type="Environment" id="Environment_001"]
 background_mode = 3
@@ -34,6 +35,8 @@ environment = SubResource("Environment_001")
 [node name="Bullets" type="Node2D" parent="GameWorld"]
 
 [node name="Effects" type="Node2D" parent="GameWorld"]
+
+[node name="Enemies" type="Node2D" parent="GameWorld"]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 540)
@@ -115,66 +118,12 @@ horizontal_alignment = 1
 vertical_alignment = 1
 text = "W A V E  1"
 
-[node name="HeatBarBg" type="ColorRect" parent="HUD"]
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -75.0
-offset_top = -30.0
-offset_right = 75.0
-offset_bottom = -22.0
-color = Color(0.15, 0.15, 0.15, 0.8)
-
-[node name="HeatBar" type="ColorRect" parent="HUD/HeatBarBg"]
-offset_right = 150.0
-offset_bottom = 8.0
-color = Color(0, 0.7, 1, 1)
-
-[node name="GameOverPanel" type="Control" parent="HUD"]
-visible = false
+[node name="HUDDraw" type="Control" parent="HUD"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-
-[node name="GameOverBg" type="ColorRect" parent="HUD/GameOverPanel"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0, 0, 0, 0.7)
-
-[node name="GameOverTitle" type="Label" parent="HUD/GameOverPanel"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -150.0
-offset_right = 200.0
-offset_bottom = -90.0
-theme_override_colors/font_color = Color(1, 0, 0, 1)
-theme_override_font_sizes/font_size = 52
-horizontal_alignment = 1
-vertical_alignment = 1
-text = "G A M E   O V E R"
-
-[node name="GameOverScore" type="Label" parent="HUD/GameOverPanel"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -60.0
-offset_right = 200.0
-offset_bottom = 120.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
-horizontal_alignment = 1
-vertical_alignment = 1
-text = "SCORE: 0"
+mouse_filter = 2
+script = ExtResource("9")
 
 [node name="TouchControls" type="CanvasLayer" parent="."]
 layer = 2

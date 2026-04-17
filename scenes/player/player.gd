@@ -136,14 +136,24 @@ func _fire_bullet() -> void:
 	if bullets_node.get_child_count() >= max_bullets:
 		return
 
-	var bullet := BulletScene.instantiate()
-	var spawn_pos := position + Vector2.UP.rotated(rotation) * (ship_size + 5)
-	bullet.position = spawn_pos
-	bullet.rotation = rotation
-	bullet.direction = Vector2.UP.rotated(rotation)
-	bullet.speed = bullet_speed
-	bullet.color = ship_color
-	bullets_node.add_child(bullet)
+	var base_dir := Vector2.UP.rotated(rotation)
+	var spawn_pos := position + base_dir * (ship_size + 5)
+	
+	# Multi-shot: fire 3 bullets in spread
+	var shot_angles: Array[float] = [0.0]
+	if PowerupManager.is_active("multi_shot"):
+		shot_angles = [-deg_to_rad(20), 0.0, deg_to_rad(20)]
+	
+	for angle_offset in shot_angles:
+		if bullets_node.get_child_count() >= max_bullets + 4:  # Allow a few extra for multi-shot
+			break
+		var bullet := BulletScene.instantiate()
+		bullet.position = spawn_pos
+		bullet.rotation = rotation + angle_offset
+		bullet.direction = base_dir.rotated(angle_offset)
+		bullet.speed = bullet_speed
+		bullet.color = ship_color
+		bullets_node.add_child(bullet)
 
 	heat += heat_per_shot
 	if heat >= 100.0:

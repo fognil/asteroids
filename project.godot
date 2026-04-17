@@ -11,14 +11,16 @@ config_version=5
 [application]
 
 config/name="Neon Asteroids"
-run/main_scene="res://scenes/game/game.tscn"
+run/main_scene="res://scenes/menu/main_menu.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
 EventBus="*res://scripts/autoload/event_bus.gd"
+SaveManager="*res://scripts/autoload/save_manager.gd"
 GameData="*res://scripts/autoload/game_data.gd"
+PowerupManager="*res://scripts/autoload/powerup_manager.gd"
 
 [display]
 
