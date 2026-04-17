@@ -23,6 +23,15 @@ func _ready() -> void:
 	EventBus.bomb_used.connect(_on_bomb_used)
 	EventBus.coin_collected.connect(_on_coin_collected)
 	
+	# Scale fonts for mobile
+	var sc := ScreenWrap.get_ui_scale()
+	score_label.add_theme_font_size_override("font_size", int(24 * sc))
+	high_label.add_theme_font_size_override("font_size", int(18 * sc))
+	lives_label.add_theme_font_size_override("font_size", int(24 * sc))
+	wave_label.add_theme_font_size_override("font_size", int(16 * sc))
+	combo_label.add_theme_font_size_override("font_size", int(28 * sc))
+	wave_announce.add_theme_font_size_override("font_size", int(48 * sc))
+	
 	_update_lives()
 	_update_bombs()
 	wave_announce.text = ""

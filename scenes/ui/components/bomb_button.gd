@@ -10,7 +10,7 @@ var button_radius: float = 30.0
 
 func _ready() -> void:
 	var vp := get_viewport_rect().size
-	var sc := vp.y / 1080.0
+	var sc := ScreenWrap.get_ui_scale()
 	button_radius = 50.0 * sc
 	position = Vector2(vp.x - 180 * sc, vp.y - 340 * sc)
 
@@ -35,7 +35,7 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	var sc := get_viewport_rect().size.y / 1080.0
+	var sc := ScreenWrap.get_ui_scale()
 	var color := active_color if is_pressed else button_color
 	draw_circle(Vector2.ZERO, button_radius, color)
 	draw_arc(Vector2.ZERO, button_radius, 0, TAU, 32, Color(1, 0.6, 0, 0.3), 3.0 * sc, true)

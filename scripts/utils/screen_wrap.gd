@@ -31,3 +31,13 @@ static func _get_viewport_size() -> Vector2:
 ## Helper for other scripts to get viewport size without hardcoding 1920×1080
 static func get_viewport_size() -> Vector2:
 	return _get_viewport_size()
+
+## Returns scale factor for UI elements, accounting for mobile screens.
+## Desktop: vp.y / 1080.0 (usually 1.0)
+## Mobile: vp.y / 1080.0 * 1.8 (elements 1.8x bigger)
+static func get_ui_scale() -> float:
+	var vp := _get_viewport_size()
+	var base_sc := vp.y / 1080.0
+	if OS.get_name() in ["Android", "iOS"]:
+		return base_sc * 1.8
+	return base_sc

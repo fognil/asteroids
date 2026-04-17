@@ -18,6 +18,9 @@ var joystick_vector: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
+	var sc := ScreenWrap.get_ui_scale()
+	joystick_radius = 80.0 * sc
+	knob_radius = 30.0 * sc
 	# Only respond to touches on left half
 	mouse_filter = Control.MOUSE_FILTER_PASS
 

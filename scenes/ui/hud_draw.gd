@@ -24,7 +24,7 @@ func _draw() -> void:
 		_draw_game_over(vp)
 
 func _draw_heat_bar(vp: Vector2) -> void:
-	var sc := vp.y / 1080.0
+	var sc := ScreenWrap.get_ui_scale()
 	var bar_w := 350.0 * sc
 	var bar_h := 10.0 * sc
 	var bar_x := (vp.x - bar_w) / 2
@@ -54,7 +54,7 @@ func _draw_heat_bar(vp: Vector2) -> void:
 		draw_string(font, Vector2(bar_x + bar_w / 2 - 50 * sc, bar_y - 8 * sc), "OVERHEAT!", HORIZONTAL_ALIGNMENT_CENTER, -1, fs, Color(1, 0.3, 0.3, 0.9))
 
 func _draw_active_powerups(vp: Vector2) -> void:
-	var sc := vp.y / 1080.0
+	var sc := ScreenWrap.get_ui_scale()
 	var font := ThemeDB.fallback_font
 	var x_start := 30.0 * sc
 	var y_pos := vp.y - 110.0 * sc
@@ -91,7 +91,7 @@ func _draw_active_powerups(vp: Vector2) -> void:
 		idx += 1
 
 func _draw_game_over(vp: Vector2) -> void:
-	var sc := vp.y / 1080.0
+	var sc := ScreenWrap.get_ui_scale()
 	var font := ThemeDB.fallback_font
 	
 	# Semi-transparent overlay
@@ -140,7 +140,7 @@ func _draw_game_over(vp: Vector2) -> void:
 	draw_string(font, Vector2((vp.x - rs_size.x) / 2, vp.y * 0.62), restart_text, HORIZONTAL_ALIGNMENT_CENTER, -1, restart_fs, Color(1, 1, 1, 0.4 + 0.4 * abs(sin(Time.get_ticks_msec() * 0.003))))
 
 func _draw_pause_button(vp: Vector2) -> void:
-	var sc := vp.y / 1080.0
+	var sc := ScreenWrap.get_ui_scale()
 	if GameData.lives <= 0:
 		return
 	var px := vp.x - 70 * sc
@@ -148,7 +148,7 @@ func _draw_pause_button(vp: Vector2) -> void:
 	NeonIcons.draw_pause(self, Vector2(px, py), 20.0 * sc, Color(0.8, 0.8, 0.8, 0.5))
 
 func _draw_boss_hp(vp: Vector2) -> void:
-	var sc := vp.y / 1080.0
+	var sc := ScreenWrap.get_ui_scale()
 	var boss := get_tree().get_first_node_in_group("boss")
 	if boss == null or not is_instance_valid(boss):
 		return
@@ -178,7 +178,7 @@ func _draw_boss_hp(vp: Vector2) -> void:
 
 func _input(event: InputEvent) -> void:
 	var vp := get_viewport_rect().size
-	var sc := vp.y / 1080.0
+	var sc := ScreenWrap.get_ui_scale()
 	var pos := Vector2.ZERO
 	if event is InputEventScreenTouch and event.pressed:
 		pos = event.position
