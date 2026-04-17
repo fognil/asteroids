@@ -9,6 +9,7 @@ var settings_screen: Control = null
 var daily_reward: Control = null
 var missions_screen: Control = null
 var shop_screen: Control = null
+var battle_pass_screen: Control = null
 
 func _ready() -> void:
 	_generate_stars()
@@ -41,6 +42,14 @@ func _ready() -> void:
 	shop_screen.anchor_bottom = 1.0
 	shop_screen.visible = false
 	add_child(shop_screen)
+	
+	# Create battle pass screen
+	battle_pass_screen = load("res://scenes/menu/battle_pass_screen.gd").new()
+	battle_pass_screen.anchors_preset = Control.PRESET_FULL_RECT
+	battle_pass_screen.anchor_right = 1.0
+	battle_pass_screen.anchor_bottom = 1.0
+	battle_pass_screen.visible = false
+	add_child(battle_pass_screen)
 	
 	# Auto-show daily reward if unclaimed
 	if daily_reward.has_method("can_claim") and daily_reward.can_claim():
@@ -109,6 +118,8 @@ func _hide_subscreens() -> void:
 		missions_screen.visible = false
 	if shop_screen:
 		shop_screen.visible = false
+	if battle_pass_screen:
+		battle_pass_screen.visible = false
 
 func _start_game() -> void:
 	get_tree().change_scene_to_file("res://scenes/game/game.tscn")
@@ -387,7 +398,8 @@ func _draw_pass(vp: Vector2, font: Font) -> void:
 	var title := "🎫 GALACTIC PASS"
 	var ts := font.get_string_size(title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24)
 	draw_string(font, Vector2((vp.x - ts.x) / 2, 38), title, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0.6, 0.3, 1))
-	draw_string(font, Vector2(vp.x / 2 - 80, vp.y / 2), "Coming Soon...", HORIZONTAL_ALIGNMENT_CENTER, -1, 18, Color(0.5, 0.5, 0.5))
+	if battle_pass_screen:
+		battle_pass_screen.visible = (selected_tab == 2)
 
 func _draw_missions(vp: Vector2, font: Font) -> void:
 	var title := "🎯 MISSIONS"

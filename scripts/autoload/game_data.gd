@@ -114,6 +114,10 @@ func end_game() -> void:
 	var xp_earned := int(score / 100.0) + wave * 10
 	add_xp(xp_earned)
 	
+	# Battle Pass XP
+	var bp_xp_earned := wave * 5 + int(score / 500.0)
+	add_bp_xp(bp_xp_earned)
+	
 	SaveManager.save_game()
 
 func add_score(amount: int) -> void:
@@ -231,3 +235,13 @@ func get_ship_color() -> Color:
 	if equipped_ship in SHIP_STATS:
 		return SHIP_STATS[equipped_ship]["color"]
 	return Color(0, 1, 1)
+
+func add_bp_xp(amount: int) -> void:
+	var bp_xp: int = settings.get("bp_xp", 0)
+	var bp_tier: int = settings.get("bp_tier", 0)
+	bp_xp += amount
+	while bp_xp >= 100 and bp_tier < 30:
+		bp_xp -= 100
+		bp_tier += 1
+	settings["bp_xp"] = bp_xp
+	settings["bp_tier"] = bp_tier
