@@ -12,15 +12,16 @@ func _ready() -> void:
 
 func _generate_stars() -> void:
 	var vp := ScreenWrap.get_viewport_size()
+	var pad := 300.0  # Extra padding for wider screens
 	for i in 150:
 		stars.append({
-			"pos": Vector2(randf() * vp.x, randf() * vp.y),
+			"pos": Vector2(randf() * (vp.x + pad * 2) - pad, randf() * (vp.y + pad * 2) - pad),
 			"size": randf_range(0.3, 2.0),
 			"brightness": randf_range(0.05, 0.35),
 			"speed": randf_range(0.3, 3.0),
 			"offset": randf() * TAU,
-			"parallax": randf_range(0.02, 0.15),  # Slow drift
-			"hue": randf_range(0.5, 0.7),  # Blue-cyan shift
+			"parallax": randf_range(0.02, 0.15),
+			"hue": randf_range(0.5, 0.7),
 		})
 
 func _process(_delta: float) -> void:
@@ -30,8 +31,8 @@ func _draw() -> void:
 	var vp := ScreenWrap.get_viewport_size()
 	var time := Time.get_ticks_msec() / 1000.0
 	
-	# Background gradient
-	draw_rect(Rect2(0, 0, vp.x, vp.y), Color(0.01, 0.01, 0.03))
+	# Background gradient — draw larger to cover wider screens
+	draw_rect(Rect2(-300, -300, vp.x + 600, vp.y + 600), Color(0.01, 0.01, 0.03))
 	
 	# Subtle nebula blobs
 	for i in 3:
