@@ -1,7 +1,7 @@
 extends Node
 ## Game Manager — controls game state, wave spawning, enemies, and core loop.
 
-enum State { COUNTDOWN, PLAYING, WAVE_CLEAR, GAME_OVER }
+enum State { COUNTDOWN, PLAYING, WAVE_CLEAR, BOSS_FIGHT, GAME_OVER }
 
 var current_state: State = State.COUNTDOWN
 var countdown_timer: float = 0.0
@@ -13,6 +13,9 @@ const COMBO_TIMEOUT: float = 2.5
 var ufo_spawn_timer: float = 15.0
 var active_ufos: int = 0
 const MAX_UFOS := 2
+
+# Boss
+var boss_active: bool = false
 
 @onready var player: CharacterBody2D = $"../GameWorld/Player"
 @onready var asteroids_container: Node2D = $"../GameWorld/Asteroids"
@@ -30,6 +33,7 @@ func _ready() -> void:
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.asteroid_destroyed.connect(_on_asteroid_destroyed)
 	EventBus.enemy_destroyed.connect(_on_enemy_destroyed)
+	EventBus.boss_defeated.connect(_on_boss_defeated)
 	
 	start_game()
 
@@ -41,6 +45,8 @@ func _process(delta: float) -> void:
 			_process_playing(delta)
 		State.WAVE_CLEAR:
 			_process_wave_clear(delta)
+		State.BOSS_FIGHT:
+			_process_boss_fight(delta)
 		State.GAME_OVER:
 			_process_game_over(delta)
 
@@ -63,6 +69,7 @@ func _clear_all() -> void:
 		child.queue_free()
 	Engine.time_scale = 1.0
 	active_ufos = 0
+	boss_active = false
 
 # === Wave Management ===
 func _start_next_wave() -> void:
@@ -139,12 +146,31 @@ func _update_ufo_spawning(delta: float) -> void:
 func _spawn_ufo() -> void:
 	var from_left := randf() < 0.5
 	var ufo: Area2D
+	var roll := randf()
 	
-	if GameData.wave >= 6 and randf() < 0.4:
-		# Hunter UFO
-		ufo = load("res://scenes/enemies/hunter_ufo.tscn").instantiate()
+	# Type distribution based on wave (from GDD)
+	if GameData.wave >= 15:
+		if roll < 0.3:
+			ufo = load("res://scenes/enemies/interceptor_ufo.tscn").instantiate()
+		elif roll < 0.55:
+			ufo = load("res://scenes/enemies/bomber_ufo.tscn").instantiate()
+		elif roll < 0.80:
+			ufo = load("res://scenes/enemies/hunter_ufo.tscn").instantiate()
+		else:
+			ufo = load("res://scenes/enemies/scout_ufo.tscn").instantiate()
+	elif GameData.wave >= 10:
+		if roll < 0.35:
+			ufo = load("res://scenes/enemies/bomber_ufo.tscn").instantiate()
+		elif roll < 0.70:
+			ufo = load("res://scenes/enemies/hunter_ufo.tscn").instantiate()
+		else:
+			ufo = load("res://scenes/enemies/scout_ufo.tscn").instantiate()
+	elif GameData.wave >= 6:
+		if roll < 0.4:
+			ufo = load("res://scenes/enemies/hunter_ufo.tscn").instantiate()
+		else:
+			ufo = load("res://scenes/enemies/scout_ufo.tscn").instantiate()
 	else:
-		# Scout UFO
 		ufo = load("res://scenes/enemies/scout_ufo.tscn").instantiate()
 	
 	ufo.setup(from_left)
@@ -175,8 +201,30 @@ func _process_playing(delta: float) -> void:
 	
 	# Check if all asteroids destroyed
 	if asteroids_container.get_child_count() == 0:
+		# Boss wave every 5 waves
+		if GameData.wave % 5 == 0 and not boss_active:
+			_spawn_boss()
+		else:
+			current_state = State.WAVE_CLEAR
+			wave_clear_timer = 2.0
+			EventBus.wave_completed.emit(GameData.wave)
+
+func _process_boss_fight(delta: float) -> void:
+	# Combo timeout
+	combo_timer -= delta
+	if combo_timer <= 0 and GameData.combo > 0:
+		GameData.reset_combo()
+	
+	# Bomb input
+	if Input.is_action_just_pressed("bomb"):
+		_use_bomb()
+	
+	_check_player_collisions()
+	
+	# Check if boss is dead (no more boss group nodes)
+	if not boss_active:
 		current_state = State.WAVE_CLEAR
-		wave_clear_timer = 2.0
+		wave_clear_timer = 3.0
 		EventBus.wave_completed.emit(GameData.wave)
 
 func _process_wave_clear(delta: float) -> void:
@@ -259,6 +307,23 @@ func _on_asteroid_destroyed(pos: Vector2, size_name: String, _type: String) -> v
 func _on_enemy_destroyed(_type: String, _pos: Vector2) -> void:
 	combo_timer = COMBO_TIMEOUT
 
+# === Boss ===
+func _spawn_boss() -> void:
+	boss_active = true
+	current_state = State.BOSS_FIGHT
+	
+	# Clear remaining enemies
+	for child in enemies_container.get_children():
+		child.queue_free()
+	
+	# Spawn Rock Titan
+	var boss: Area2D = load("res://scenes/bosses/rock_titan.tscn").instantiate()
+	boss.position = Vector2(960, 200)
+	enemies_container.add_child(boss)
+
+func _on_boss_defeated(_boss_id: String) -> void:
+	boss_active = false
+
 func _spawn_coins_at(pos: Vector2, size_name: String) -> void:
 	var coin_count := 1
 	var coin_tier := 0  # Bronze
@@ -285,8 +350,8 @@ func _spawn_coins_at(pos: Vector2, size_name: String) -> void:
 		effects_container.add_child(coin)
 
 func _spawn_powerup_at(pos: Vector2) -> void:
-	var types := ["shield", "multi_shot", "rapid_fire", "piercing", "extra_life", "bomb_pickup"]
-	var weights := [15, 12, 12, 6, 5, 8]
+	var types := ["shield", "multi_shot", "rapid_fire", "piercing", "slow_mo", "score_x2", "extra_life", "bomb_pickup"]
+	var weights := [15, 12, 12, 6, 5, 5, 5, 8]
 	
 	# Weighted random selection
 	var total := 0

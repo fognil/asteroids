@@ -118,6 +118,8 @@ func end_game() -> void:
 func add_score(amount: int) -> void:
 	var score_level: int = upgrades.get("score_bonus", 0)
 	var bonus: float = 1.0 + score_level * 0.05
+	if PowerupManager.is_active("score_x2"):
+		bonus *= 2.0
 	var final_amount := int(float(amount) * float(combo_multiplier) * bonus)
 	score += final_amount
 	if score > high_score:

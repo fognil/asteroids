@@ -10,6 +10,8 @@ const POWERUP_TYPES := {
 	"multi_shot": { "duration": 10.0, "color": Color(0.2, 1.0, 0.4), "instant": false },
 	"rapid_fire": { "duration": 8.0, "color": Color(1.0, 1.0, 0.2), "instant": false },
 	"piercing": { "duration": 8.0, "color": Color(1.0, 0.3, 0.2), "instant": false },
+	"slow_mo": { "duration": 5.0, "color": Color(0.4, 0.2, 1.0), "instant": false },
+	"score_x2": { "duration": 12.0, "color": Color(1.0, 0.85, 0.0), "instant": false },
 	"extra_life": { "duration": 0.0, "color": Color(1.0, 0.4, 0.6), "instant": true },
 	"bomb_pickup": { "duration": 0.0, "color": Color(1.0, 0.6, 0.0), "instant": true },
 }
@@ -67,11 +69,15 @@ func _apply_effect(type: String) -> void:
 		"shield":
 			player.has_shield = true
 		"rapid_fire":
-			player.fire_rate *= 0.5  # Double fire rate
+			player.fire_rate *= 0.5
+		"slow_mo":
+			Engine.time_scale = 0.5
 		"multi_shot":
-			pass  # Handled in bullet firing logic
+			pass
 		"piercing":
-			pass  # Handled in bullet collision logic
+			pass
+		"score_x2":
+			pass  # Handled in GameData.add_score
 
 func _deactivate(type: String) -> void:
 	if type not in active_powerups:
@@ -83,7 +89,9 @@ func _deactivate(type: String) -> void:
 			"shield":
 				player.has_shield = false
 			"rapid_fire":
-				player.fire_rate *= 2.0  # Restore fire rate
+				player.fire_rate *= 2.0
+			"slow_mo":
+				Engine.time_scale = 1.0
 	
 	active_powerups.erase(type)
 	EventBus.powerup_expired.emit(type)

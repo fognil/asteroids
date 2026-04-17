@@ -21,6 +21,8 @@ const TYPE_VISUALS := {
 	"multi_shot": { "color": Color(0.2, 1.0, 0.4), "icon": "triple" },
 	"rapid_fire": { "color": Color(1.0, 1.0, 0.2), "icon": "lightning" },
 	"piercing": { "color": Color(1.0, 0.3, 0.2), "icon": "arrow" },
+	"slow_mo": { "color": Color(0.4, 0.2, 1.0), "icon": "clock" },
+	"score_x2": { "color": Color(1.0, 0.85, 0.0), "icon": "star" },
 	"extra_life": { "color": Color(1.0, 0.4, 0.6), "icon": "heart" },
 	"bomb_pickup": { "color": Color(1.0, 0.6, 0.0), "icon": "bomb" },
 }
@@ -82,6 +84,21 @@ func _generate_icon() -> void:
 			for i in 8:
 				var angle := float(i) / 8.0 * TAU
 				icon_points.append(Vector2(cos(angle) * s * 0.7, sin(angle) * s * 0.7))
+			icon_points.append(icon_points[0])
+		"clock":
+			# Circle with hour/minute hands
+			icon_points = PackedVector2Array()
+			for i in 8:
+				var angle := float(i) / 8.0 * TAU
+				icon_points.append(Vector2(cos(angle) * s * 0.7, sin(angle) * s * 0.7))
+			icon_points.append(icon_points[0])
+		"star":
+			icon_points = PackedVector2Array()
+			for i in 5:
+				var outer_angle := float(i) * TAU / 5.0 - PI / 2
+				var inner_angle := outer_angle + TAU / 10.0
+				icon_points.append(Vector2(cos(outer_angle) * s, sin(outer_angle) * s))
+				icon_points.append(Vector2(cos(inner_angle) * s * 0.4, sin(inner_angle) * s * 0.4))
 			icon_points.append(icon_points[0])
 
 func _process(delta: float) -> void:

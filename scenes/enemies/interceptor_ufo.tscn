@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dol8aamgg04o7"]
+
+[ext_resource type="Script" path="res://scenes/enemies/interceptor_ufo.gd" id="1"]
+
+[node name="InterceptorUFO" type="Area2D"]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1")
