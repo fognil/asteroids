@@ -1,6 +1,6 @@
 extends Node
 ## AudioManager — Procedural SFX + Music bus control.
-## Generates retro synth sounds at runtime (no audio files needed).
+## Generates retro synth sounds once at startup and caches them.
 
 var master_volume: float = 0.8
 var music_volume: float = 0.6
@@ -10,6 +10,9 @@ var sfx_volume: float = 0.8
 var sfx_players: Array[AudioStreamPlayer] = []
 const MAX_SFX_PLAYERS := 8
 var music_player: AudioStreamPlayer = null
+
+# Cached SFX streams — generated once, played many times
+var _sfx_cache: Dictionary = {}
 
 func _ready() -> void:
 	# Create SFX player pool
@@ -25,6 +28,7 @@ func _ready() -> void:
 	add_child(music_player)
 	
 	_apply_volumes()
+	_generate_all_sfx()
 
 func _apply_volumes() -> void:
 	master_volume = GameData.settings.get("master_volume", 0.8)
@@ -94,6 +98,34 @@ func _generate_sweep(start_freq: float, end_freq: float, duration: float, volume
 	audio.data = data
 	return audio
 
+# === Cache all SFX at startup ===
+
+func _generate_all_sfx() -> void:
+	# Generate at unity volume (1.0) — volume adjusted at playback via volume_db
+	_sfx_cache["shoot"] = _generate_sweep(800, 200, 0.08, 1.0)
+	_sfx_cache["asteroid_hit"] = _generate_tone(150, 0.1, 1.0, 2)
+	_sfx_cache["asteroid_split"] = _generate_sweep(300, 80, 0.15, 1.0)
+	_sfx_cache["explosion"] = _generate_tone(80, 0.3, 1.0, 2)
+	_sfx_cache["explosion_big"] = _generate_tone(50, 0.5, 1.0, 2)
+	_sfx_cache["coin_collect"] = _generate_tone(1200, 0.06, 0.7, 0)
+	_sfx_cache["powerup"] = _generate_sweep(400, 1200, 0.2, 0.6)
+	_sfx_cache["shield_activate"] = _generate_sweep(300, 800, 0.3, 0.5)
+	_sfx_cache["shield_break"] = _generate_sweep(800, 100, 0.2, 1.0)
+	_sfx_cache["player_hit"] = _generate_sweep(400, 60, 0.3, 1.0)
+	_sfx_cache["player_death"] = _generate_tone(60, 0.8, 1.0, 2)
+	_sfx_cache["bomb"] = _generate_tone(40, 0.6, 1.0, 2)
+	_sfx_cache["overheat"] = _generate_tone(1000, 0.15, 0.4, 1)
+	_sfx_cache["ufo_appear"] = _generate_sweep(200, 600, 0.4, 0.3)
+	_sfx_cache["boss_warning"] = _generate_tone(600, 0.5, 0.8, 1)
+	_sfx_cache["boss_hit"] = _generate_tone(120, 0.15, 1.0, 2)
+	_sfx_cache["boss_death"] = _generate_tone(30, 1.2, 1.0, 2)
+	_sfx_cache["combo_up"] = _generate_sweep(600, 1000, 0.1, 0.5)
+	_sfx_cache["combo_lost"] = _generate_sweep(500, 200, 0.2, 0.4)
+	_sfx_cache["ui_tap"] = _generate_tone(800, 0.03, 0.3, 0)
+	_sfx_cache["wave_start"] = _generate_sweep(300, 600, 0.15, 0.5)
+	_sfx_cache["wave_clear"] = _generate_sweep(400, 1200, 0.3, 0.6)
+	_sfx_cache["game_over"] = _generate_sweep(600, 100, 0.6, 0.6)
+
 # === Play SFX ===
 
 func play_sfx(sfx_name: String) -> void:
@@ -101,62 +133,13 @@ func play_sfx(sfx_name: String) -> void:
 	if vol < 0.01:
 		return
 	
-	var stream: AudioStreamWAV = null
-	match sfx_name:
-		"shoot":
-			stream = _generate_sweep(800, 200, 0.08, vol)
-		"asteroid_hit":
-			stream = _generate_tone(150, 0.1, vol, 2)
-		"asteroid_split":
-			stream = _generate_sweep(300, 80, 0.15, vol)
-		"explosion":
-			stream = _generate_tone(80, 0.3, vol, 2)
-		"explosion_big":
-			stream = _generate_tone(50, 0.5, vol * 1.2, 2)
-		"coin_collect":
-			stream = _generate_tone(1200, 0.06, vol * 0.7, 0)
-		"powerup":
-			stream = _generate_sweep(400, 1200, 0.2, vol * 0.6)
-		"shield_activate":
-			stream = _generate_sweep(300, 800, 0.3, vol * 0.5)
-		"shield_break":
-			stream = _generate_sweep(800, 100, 0.2, vol)
-		"player_hit":
-			stream = _generate_sweep(400, 60, 0.3, vol)
-		"player_death":
-			stream = _generate_tone(60, 0.8, vol, 2)
-		"bomb":
-			stream = _generate_tone(40, 0.6, vol * 1.3, 2)
-		"overheat":
-			stream = _generate_tone(1000, 0.15, vol * 0.4, 1)
-		"ufo_appear":
-			stream = _generate_sweep(200, 600, 0.4, vol * 0.3)
-		"boss_warning":
-			stream = _generate_tone(600, 0.5, vol * 0.8, 1)
-		"boss_hit":
-			stream = _generate_tone(120, 0.15, vol, 2)
-		"boss_death":
-			stream = _generate_tone(30, 1.2, vol, 2)
-		"combo_up":
-			stream = _generate_sweep(600, 1000, 0.1, vol * 0.5)
-		"combo_lost":
-			stream = _generate_sweep(500, 200, 0.2, vol * 0.4)
-		"ui_tap":
-			stream = _generate_tone(800, 0.03, vol * 0.3, 0)
-		"wave_start":
-			stream = _generate_sweep(300, 600, 0.15, vol * 0.5)
-		"wave_clear":
-			stream = _generate_sweep(400, 1200, 0.3, vol * 0.6)
-		"game_over":
-			stream = _generate_sweep(600, 100, 0.6, vol * 0.6)
-		_:
-			return
+	if sfx_name not in _sfx_cache:
+		return
 	
-	if stream:
-		var player := _get_free_player()
-		player.stream = stream
-		player.volume_db = linear_to_db(vol)
-		player.play()
+	var player := _get_free_player()
+	player.stream = _sfx_cache[sfx_name]
+	player.volume_db = linear_to_db(vol)
+	player.play()
 
 # === Music ===
 

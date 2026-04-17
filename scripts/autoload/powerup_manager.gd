@@ -4,6 +4,10 @@ extends Node
 # Active power-ups: { type_name: { "remaining": float, "duration": float } }
 var active_powerups: Dictionary = {}
 
+# Saved original values for safe deactivation
+var _original_fire_rate: float = -1.0
+var _slow_mo_active: bool = false
+
 # Power-up type definitions
 const POWERUP_TYPES := {
 	"shield": { "duration": 15.0, "color": Color(0.2, 0.6, 1.0), "instant": false },
@@ -68,9 +72,14 @@ func _apply_effect(type: String) -> void:
 	match type:
 		"shield":
 			player.has_shield = true
+			AudioManager.play_sfx("shield_activate")
 		"rapid_fire":
-			player.fire_rate *= 0.5
+			# Save original value for safe restoration
+			if _original_fire_rate < 0:
+				_original_fire_rate = player.fire_rate
+			player.fire_rate = _original_fire_rate * 0.5
 		"slow_mo":
+			_slow_mo_active = true
 			Engine.time_scale = 0.5
 		"multi_shot":
 			pass
@@ -89,15 +98,24 @@ func _deactivate(type: String) -> void:
 			"shield":
 				player.has_shield = false
 			"rapid_fire":
-				player.fire_rate *= 2.0
+				# Restore original value instead of multiply
+				if _original_fire_rate > 0:
+					player.fire_rate = _original_fire_rate
+					_original_fire_rate = -1.0
 			"slow_mo":
-				Engine.time_scale = 1.0
+				_slow_mo_active = false
+				# Only restore if camera isn't also doing slow-mo
+				if not _is_camera_slow_mo():
+					Engine.time_scale = 1.0
 	
 	active_powerups.erase(type)
 	EventBus.powerup_expired.emit(type)
 
 func is_active(type: String) -> bool:
 	return type in active_powerups
+
+func is_slow_mo_active() -> bool:
+	return _slow_mo_active
 
 func get_remaining(type: String) -> float:
 	if type in active_powerups:
@@ -115,9 +133,19 @@ func reset() -> void:
 	for type in active_powerups.keys():
 		_deactivate(type)
 	active_powerups.clear()
+	_original_fire_rate = -1.0
+	_slow_mo_active = false
 
 func _get_player() -> CharacterBody2D:
 	var p := Engine.get_main_loop()
 	if p is SceneTree:
 		return (p as SceneTree).get_first_node_in_group("player") as CharacterBody2D
 	return null
+
+func _is_camera_slow_mo() -> bool:
+	var p := Engine.get_main_loop()
+	if p is SceneTree:
+		var cam := (p as SceneTree).root.get_viewport().get_camera_2d()
+		if cam and "slow_mo_timer" in cam:
+			return cam.slow_mo_timer > 0
+	return false

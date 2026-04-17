@@ -133,6 +133,7 @@ func _on_body_entered(body: Node2D) -> void:
 func _collect() -> void:
 	is_collected = true
 	PowerupManager.activate(powerup_type)
+	AudioManager.play_sfx("powerup")
 	queue_free()
 
 func _draw() -> void:

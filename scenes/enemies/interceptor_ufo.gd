@@ -35,7 +35,7 @@ func _setup_collision() -> void:
 	collision_mask = 2
 
 func setup(from_left: bool) -> void:
-	var vp := Vector2(1920, 1080)
+	var vp := ScreenWrap.get_viewport_size()
 	if from_left:
 		position = Vector2(-ufo_size, randf_range(100, vp.y - 100))
 	else:
@@ -59,7 +59,7 @@ func _process(delta: float) -> void:
 			_process_retreat(delta)
 	
 	# Keep on screen
-	var vp := Vector2(1920, 1080)
+	var vp := ScreenWrap.get_viewport_size()
 	position.x = clampf(position.x, 20, vp.x - 20)
 	position.y = clampf(position.y, 20, vp.y - 20)
 	

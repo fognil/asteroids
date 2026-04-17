@@ -29,8 +29,34 @@ func load_game() -> bool:
 		return false
 	
 	var data: Dictionary = json.data
+	
+	# Version check & migration
+	var saved_version: String = data.get("version", "1.0")
+	if saved_version != SAVE_VERSION:
+		data = _migrate_save(data, saved_version)
+	
 	_apply_save_data(data)
 	return true
+
+func _migrate_save(data: Dictionary, from_version: String) -> Dictionary:
+	# Add migration steps here as versions change
+	# Example: if from_version < "2.0", add new fields with defaults
+	if not data.has("player"):
+		data["player"] = {}
+	var p: Dictionary = data["player"]
+	# Ensure all fields exist with defaults
+	p["level"] = p.get("level", 1)
+	p["xp"] = p.get("xp", 0)
+	p["coins"] = p.get("coins", 0)
+	p["gems"] = p.get("gems", 0)
+	p["high_score"] = p.get("high_score", 0)
+	p["best_wave"] = p.get("best_wave", 0)
+	p["best_combo"] = p.get("best_combo", 0)
+	p["total_asteroids"] = p.get("total_asteroids", 0)
+	p["total_games"] = p.get("total_games", 0)
+	p["total_coins_earned"] = p.get("total_coins_earned", 0)
+	data["version"] = SAVE_VERSION
+	return data
 
 func _build_save_data() -> Dictionary:
 	return {

@@ -18,7 +18,16 @@ static func wrap_position(pos: Vector2, margin: float = 0.0) -> Vector2:
 	return new_pos
 
 static func _get_viewport_size() -> Vector2:
+	# Use the actual visible viewport size, which respects stretch mode "expand"
+	var tree := Engine.get_main_loop()
+	if tree is SceneTree:
+		return (tree as SceneTree).root.get_visible_rect().size
+	# Fallback to project settings
 	return Vector2(
 		ProjectSettings.get_setting("display/window/size/viewport_width"),
 		ProjectSettings.get_setting("display/window/size/viewport_height")
 	)
+
+## Helper for other scripts to get viewport size without hardcoding 1920×1080
+static func get_viewport_size() -> Vector2:
+	return _get_viewport_size()

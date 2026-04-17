@@ -53,12 +53,22 @@ func _ready() -> void:
 	add_to_group("player")
 	var vp := get_viewport_rect().size
 	position = vp / 2.0
+	
+	# Add collision shape so physics (Area2D body_entered) works
+	var collision := CollisionShape2D.new()
+	var shape := CircleShape2D.new()
+	shape.radius = ship_size * 0.5
+	collision.shape = shape
+	add_child(collision)
+	
+	# Set collision layer so coins/powerups/enemy bullets can detect us
+	collision_layer = 1   # Player layer
+	collision_mask = 0    # We don't detect collisions ourselves (game_manager does)
 
 func _process(delta: float) -> void:
 	if is_dead:
 		return
 
-	_handle_input()
 	_handle_heat(delta)
 	_handle_shooting(delta)
 	_handle_invincibility(delta)
@@ -69,11 +79,12 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
+	_handle_input(delta)
 	_handle_movement(delta)
 	_apply_screen_wrap()
 
 # === Input ===
-func _handle_input() -> void:
+func _handle_input(delta: float) -> void:
 	if move_input == Vector2.ZERO:
 		var input_dir := Vector2.ZERO
 		if Input.is_action_pressed("rotate_left"):
@@ -87,7 +98,7 @@ func _handle_input() -> void:
 			var target_angle := input_dir.angle() + PI / 2.0
 			rotation = lerp_angle(rotation, target_angle, 0.15)
 			is_thrusting = true
-			ship_velocity += Vector2.UP.rotated(rotation) * thrust_force * get_physics_process_delta_time()
+			ship_velocity += Vector2.UP.rotated(rotation) * thrust_force * delta
 		else:
 			is_thrusting = false
 	else:
@@ -95,7 +106,7 @@ func _handle_input() -> void:
 			var target_angle := move_input.angle() + PI / 2.0
 			rotation = lerp_angle(rotation, target_angle, 0.15)
 			is_thrusting = true
-			ship_velocity += Vector2.UP.rotated(rotation) * thrust_force * get_physics_process_delta_time() * move_input.length()
+			ship_velocity += Vector2.UP.rotated(rotation) * thrust_force * delta * move_input.length()
 		else:
 			is_thrusting = false
 
@@ -215,6 +226,7 @@ func take_hit() -> void:
 	if has_shield:
 		has_shield = false
 		EventBus.powerup_expired.emit("shield")
+		AudioManager.play_sfx("shield_break")
 		# Shield break effect
 		var cam := _get_camera()
 		if cam:

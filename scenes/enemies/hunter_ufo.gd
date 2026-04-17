@@ -35,7 +35,7 @@ func _setup_collision() -> void:
 	area_entered.connect(_on_area_entered)
 
 func setup(from_left: bool) -> void:
-	var vp_size := Vector2(1920, 1080)
+	var vp_size := ScreenWrap.get_viewport_size()
 	if from_left:
 		position = Vector2(-ufo_size, randf_range(150, vp_size.y - 150))
 		move_direction = Vector2(1, 0)
@@ -66,7 +66,7 @@ func _process(delta: float) -> void:
 		_shoot_aimed()
 	
 	# Despawn
-	var vp_size := Vector2(1920, 1080)
+	var vp_size := ScreenWrap.get_viewport_size()
 	if position.x < -80 or position.x > vp_size.x + 80:
 		queue_free()
 		return

@@ -30,7 +30,7 @@ func _setup_collision() -> void:
 	area_entered.connect(_on_area_entered)
 
 func setup(from_left: bool) -> void:
-	var vp_size: Vector2 = Vector2(1920, 1080)
+	var vp_size: Vector2 = ScreenWrap.get_viewport_size()
 	if from_left:
 		position = Vector2(-ufo_size, randf_range(100, vp_size.y - 100))
 		move_direction = Vector2.RIGHT
@@ -55,7 +55,7 @@ func _process(delta: float) -> void:
 		_shoot()
 	
 	# Despawn when off screen
-	var vp_size := Vector2(1920, 1080)
+	var vp_size := ScreenWrap.get_viewport_size()
 	if position.x < -50 or position.x > vp_size.x + 50 or position.y < -50 or position.y > vp_size.y + 50:
 		queue_free()
 		return
@@ -123,10 +123,9 @@ func _spawn_coins() -> void:
 		coin.setup_velocity(Vector2.RIGHT.rotated(randf() * TAU))
 		effects.add_child(coin)
 
-func _on_area_entered(area: Area2D) -> void:
-	# Hit by player bullet
-	if area.is_in_group("player_bullets") or not area.is_in_group("enemy_bullets"):
-		pass  # Handled by bullet.gd calling take_damage
+func _on_area_entered(_area: Area2D) -> void:
+	# Damage handling is done by bullet.gd calling take_damage() directly
+	pass
 
 func _draw() -> void:
 	if is_dead:

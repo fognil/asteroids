@@ -30,7 +30,7 @@ func _process(delta: float) -> void:
 		return
 	
 	# Despawn off screen (no wrap for enemy bullets)
-	var vp := Vector2(1920, 1080)
+	var vp := ScreenWrap.get_viewport_size()
 	if position.x < -20 or position.x > vp.x + 20 or position.y < -20 or position.y > vp.y + 20:
 		queue_free()
 		return

@@ -11,7 +11,7 @@ func _ready() -> void:
 	_generate_nebula()
 
 func _generate_stars() -> void:
-	var vp := Vector2(1920, 1080)
+	var vp := ScreenWrap.get_viewport_size()
 	for i in STAR_COUNT:
 		stars.append({
 			"pos": Vector2(randf() * vp.x, randf() * vp.y),
@@ -23,7 +23,7 @@ func _generate_stars() -> void:
 		})
 
 func _generate_nebula() -> void:
-	var vp := Vector2(1920, 1080)
+	var vp := ScreenWrap.get_viewport_size()
 	# Predefined nebula color palette — deep space feel
 	var nebula_colors := [
 		Color(0.1, 0.02, 0.2, 0.04),   # Deep purple
@@ -49,6 +49,7 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	var time := Time.get_ticks_msec() / 1000.0
+	var vp := ScreenWrap.get_viewport_size()
 	
 	# === Draw Nebula Clouds (behind stars) ===
 	for cloud in nebula_clouds:
@@ -57,8 +58,8 @@ func _draw() -> void:
 		# Gentle drift
 		base_pos += cloud["drift_speed"] * time
 		# Wrap
-		base_pos.x = fmod(base_pos.x + 1920.0, 1920.0)
-		base_pos.y = fmod(base_pos.y + 1080.0, 1080.0)
+		base_pos.x = fmod(base_pos.x + vp.x, vp.x)
+		base_pos.y = fmod(base_pos.y + vp.y, vp.y)
 		
 		var base_color: Color = cloud["color"]
 		var base_radius: float = cloud["radius"]

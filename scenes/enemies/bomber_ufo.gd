@@ -28,7 +28,7 @@ func _setup_collision() -> void:
 	collision_mask = 2
 
 func setup(from_left: bool) -> void:
-	var vp_size := Vector2(1920, 1080)
+	var vp_size := ScreenWrap.get_viewport_size()
 	if from_left:
 		position = Vector2(-ufo_size, randf_range(100, vp_size.y - 100))
 		move_direction = Vector2.RIGHT
@@ -50,7 +50,7 @@ func _process(delta: float) -> void:
 		_drop_mine()
 	
 	# Despawn
-	var vp := Vector2(1920, 1080)
+	var vp := ScreenWrap.get_viewport_size()
 	if position.x < -80 or position.x > vp.x + 80:
 		queue_free()
 		return

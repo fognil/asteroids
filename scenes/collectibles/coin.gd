@@ -80,6 +80,7 @@ func _collect() -> void:
 	is_collected = true
 	GameData.coins += coin_value
 	EventBus.coin_collected.emit(coin_value)
+	AudioManager.play_sfx("coin_collect")
 	queue_free()
 
 func _draw() -> void:

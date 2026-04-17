@@ -78,9 +78,10 @@ func _ready() -> void:
 		daily_reward.show_popup()
 
 func _generate_stars() -> void:
+	var vp := ScreenWrap.get_viewport_size()
 	for i in 100:
 		star_bg.append({
-			"pos": Vector2(randf() * 1920, randf() * 1080),
+			"pos": Vector2(randf() * vp.x, randf() * vp.y),
 			"size": randf_range(0.3, 1.5),
 			"brightness": randf_range(0.1, 0.4),
 			"speed": randf_range(0.5, 2.5),

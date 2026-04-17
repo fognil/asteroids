@@ -39,8 +39,8 @@ var ships_data: Dictionary = {
 const SHIP_STATS := {
 	"phoenix": { "name": "Phoenix MK-I", "speed": 60, "fire": 60, "shield": 60, "color": Color(0, 1, 1), "price_coins": 0, "price_gems": 0 },
 	"viper": { "name": "Viper", "speed": 85, "fire": 50, "shield": 30, "color": Color(0.2, 1, 0.4), "price_coins": 5000, "price_gems": 0 },
-	"nebula": { "name": "Nebula", "speed": 50, "fire": 70, "shield": 70, "color": Color(0.6, 0.3, 1), "price_coins": 12000, "price_gems": 0 },
-	"titan": { "name": "Titan", "speed": 35, "fire": 40, "shield": 95, "color": Color(1, 0.8, 0), "price_coins": 25000, "price_gems": 0 },
+	"nebula": { "name": "Nebula", "speed": 50, "fire": 85, "shield": 45, "color": Color(0.6, 0.3, 1), "price_coins": 12000, "price_gems": 0 },
+	"titan": { "name": "Titan", "speed": 35, "fire": 55, "shield": 95, "color": Color(1, 0.8, 0), "price_coins": 25000, "price_gems": 0 },
 	"shadow": { "name": "Shadow", "speed": 90, "fire": 80, "shield": 20, "color": Color(0.5, 0, 1), "price_coins": 0, "price_gems": 100 },
 	"omega": { "name": "Omega", "speed": 70, "fire": 90, "shield": 50, "color": Color(1, 0.2, 0.2), "price_coins": 0, "price_gems": 250 },
 }
@@ -82,8 +82,6 @@ func _ready() -> void:
 	SaveManager.load_game()
 
 func reset_game() -> void:
-	total_games_played += 1
-	
 	# Apply upgrade bonuses
 	var extra_lives: int = upgrades.get("extra_life", 0)
 	var extra_bombs: int = upgrades.get("extra_bomb", 0)
@@ -107,8 +105,6 @@ func end_game() -> void:
 	
 	if wave > best_wave:
 		best_wave = wave
-	if combo > best_combo:
-		best_combo = combo
 	
 	# XP from gameplay
 	var xp_earned := int(score / 100.0) + wave * 10
@@ -147,6 +143,8 @@ func lose_life() -> void:
 
 func add_combo() -> void:
 	combo += 1
+	if combo > best_combo:
+		best_combo = combo
 	if combo >= 50:
 		combo_multiplier = 10
 	elif combo >= 20:

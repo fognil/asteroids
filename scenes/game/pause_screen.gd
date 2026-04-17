@@ -25,6 +25,13 @@ func resume() -> void:
 	get_tree().paused = false
 
 func _input(event: InputEvent) -> void:
+	# Android Back button / Escape key toggles pause
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE or event.keycode == KEY_BACK:
+			toggle_pause()
+			get_viewport().set_input_as_handled()
+			return
+	
 	if not is_paused:
 		return
 	if event is InputEventScreenTouch and event.pressed:

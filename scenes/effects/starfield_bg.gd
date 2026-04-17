@@ -11,9 +11,10 @@ func _ready() -> void:
 	_generate_stars()
 
 func _generate_stars() -> void:
+	var vp := ScreenWrap.get_viewport_size()
 	for i in 150:
 		stars.append({
-			"pos": Vector2(randf() * 1920, randf() * 1080),
+			"pos": Vector2(randf() * vp.x, randf() * vp.y),
 			"size": randf_range(0.3, 2.0),
 			"brightness": randf_range(0.05, 0.35),
 			"speed": randf_range(0.3, 3.0),
@@ -26,7 +27,7 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	var vp := Vector2(1920, 1080)
+	var vp := ScreenWrap.get_viewport_size()
 	var time := Time.get_ticks_msec() / 1000.0
 	
 	# Background gradient

@@ -3,6 +3,22 @@ extends Node
 
 enum State { COUNTDOWN, PLAYING, WAVE_CLEAR, BOSS_FIGHT, GAME_OVER }
 
+# Preloaded scenes (avoid runtime load())
+const AsteroidScene := preload("res://scenes/asteroids/asteroid.tscn")
+const CoinScene := preload("res://scenes/collectibles/coin.tscn")
+const PowerupScene := preload("res://scenes/powerups/powerup.tscn")
+const ScoutUFO := preload("res://scenes/enemies/scout_ufo.tscn")
+const HunterUFO := preload("res://scenes/enemies/hunter_ufo.tscn")
+const BomberUFO := preload("res://scenes/enemies/bomber_ufo.tscn")
+const InterceptorUFO := preload("res://scenes/enemies/interceptor_ufo.tscn")
+const BossScenes := {
+	5: preload("res://scenes/bosses/rock_titan.tscn"),
+	10: preload("res://scenes/bosses/nebula_queen.tscn"),
+	15: preload("res://scenes/bosses/comet_worm.tscn"),
+	20: preload("res://scenes/bosses/void_sentinel.tscn"),
+	25: preload("res://scenes/bosses/black_hole_king.tscn"),
+}
+
 var current_state: State = State.COUNTDOWN
 var countdown_timer: float = 0.0
 var wave_clear_timer: float = 0.0
@@ -110,7 +126,7 @@ func _spawn_wave() -> void:
 	var player_pos: Vector2 = player.global_position
 	
 	for i in count:
-		var asteroid: Area2D = load("res://scenes/asteroids/asteroid.tscn").instantiate()
+		var asteroid: Area2D = AsteroidScene.instantiate()
 		
 		var size_roll := randf()
 		if GameData.wave <= 3:
@@ -176,27 +192,27 @@ func _spawn_ufo() -> void:
 	# Type distribution based on wave (from GDD)
 	if GameData.wave >= 15:
 		if roll < 0.3:
-			ufo = load("res://scenes/enemies/interceptor_ufo.tscn").instantiate()
+			ufo = InterceptorUFO.instantiate()
 		elif roll < 0.55:
-			ufo = load("res://scenes/enemies/bomber_ufo.tscn").instantiate()
+			ufo = BomberUFO.instantiate()
 		elif roll < 0.80:
-			ufo = load("res://scenes/enemies/hunter_ufo.tscn").instantiate()
+			ufo = HunterUFO.instantiate()
 		else:
-			ufo = load("res://scenes/enemies/scout_ufo.tscn").instantiate()
+			ufo = ScoutUFO.instantiate()
 	elif GameData.wave >= 10:
 		if roll < 0.35:
-			ufo = load("res://scenes/enemies/bomber_ufo.tscn").instantiate()
+			ufo = BomberUFO.instantiate()
 		elif roll < 0.70:
-			ufo = load("res://scenes/enemies/hunter_ufo.tscn").instantiate()
+			ufo = HunterUFO.instantiate()
 		else:
-			ufo = load("res://scenes/enemies/scout_ufo.tscn").instantiate()
+			ufo = ScoutUFO.instantiate()
 	elif GameData.wave >= 6:
 		if roll < 0.4:
-			ufo = load("res://scenes/enemies/hunter_ufo.tscn").instantiate()
+			ufo = HunterUFO.instantiate()
 		else:
-			ufo = load("res://scenes/enemies/scout_ufo.tscn").instantiate()
+			ufo = ScoutUFO.instantiate()
 	else:
-		ufo = load("res://scenes/enemies/scout_ufo.tscn").instantiate()
+		ufo = ScoutUFO.instantiate()
 	
 	ufo.setup(from_left)
 	enemies_container.add_child(ufo)
@@ -316,6 +332,18 @@ func _check_player_collisions() -> void:
 		if dist < enemy_size * 0.5 + player.ship_size * 0.5:
 			player.take_hit()
 			return
+	
+	# Player ↔ Enemy Bullets
+	for bullet in bullets_container.get_children():
+		if not is_instance_valid(bullet):
+			continue
+		if not bullet.is_in_group("enemy_bullets"):
+			continue
+		var dist := player.global_position.distance_to(bullet.global_position)
+		if dist < player.ship_size * 0.5 + 4.0:  # 4.0 = enemy bullet radius
+			player.take_hit()
+			bullet.queue_free()
+			return
 
 # === Callbacks ===
 func _on_player_died() -> void:
@@ -352,25 +380,15 @@ func _spawn_boss() -> void:
 		child.queue_free()
 	
 	# Select boss based on wave
-	var boss_scene: String
-	match GameData.wave:
-		5: boss_scene = "res://scenes/bosses/rock_titan.tscn"
-		10: boss_scene = "res://scenes/bosses/nebula_queen.tscn"
-		15: boss_scene = "res://scenes/bosses/comet_worm.tscn"
-		20: boss_scene = "res://scenes/bosses/void_sentinel.tscn"
-		25: boss_scene = "res://scenes/bosses/black_hole_king.tscn"
-		_:
-			# Post-25: cycle through bosses
-			var boss_pool := [
-				"res://scenes/bosses/rock_titan.tscn",
-				"res://scenes/bosses/nebula_queen.tscn",
-				"res://scenes/bosses/comet_worm.tscn",
-				"res://scenes/bosses/void_sentinel.tscn",
-				"res://scenes/bosses/black_hole_king.tscn",
-			]
-			boss_scene = boss_pool[randi() % boss_pool.size()]
+	var boss_scene_res: PackedScene
+	if GameData.wave in BossScenes:
+		boss_scene_res = BossScenes[GameData.wave]
+	else:
+		# Post-25: cycle through bosses
+		var boss_pool: Array = BossScenes.values()
+		boss_scene_res = boss_pool[randi() % boss_pool.size()]
 	
-	var boss: Area2D = load(boss_scene).instantiate()
+	var boss: Area2D = boss_scene_res.instantiate()
 	boss.position = Vector2(960, 250)
 	enemies_container.add_child(boss)
 
@@ -396,7 +414,7 @@ func _spawn_coins_at(pos: Vector2, size_name: String) -> void:
 			coin_tier = 1
 	
 	for i in coin_count:
-		var coin: Area2D = load("res://scenes/collectibles/coin.tscn").instantiate()
+		var coin: Area2D = CoinScene.instantiate()
 		coin.tier = coin_tier
 		coin.global_position = pos
 		coin.setup_velocity(Vector2.RIGHT.rotated(randf() * TAU))
@@ -419,7 +437,7 @@ func _spawn_powerup_at(pos: Vector2) -> void:
 			selected = types[i]
 			break
 	
-	var powerup: Area2D = load("res://scenes/powerups/powerup.tscn").instantiate()
+	var powerup: Area2D = PowerupScene.instantiate()
 	powerup.powerup_type = selected
 	powerup.global_position = pos
 	effects_container.add_child(powerup)

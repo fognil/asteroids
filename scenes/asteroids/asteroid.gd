@@ -131,7 +131,6 @@ func _generate_cracks(bullet_dir: Vector2) -> void:
 func _destroy(bullet_dir: Vector2) -> void:
 	GameData.add_score(points)
 	GameData.add_combo()
-	GameData.total_asteroids_destroyed += 1
 	
 	var size_name: String = str(Size.keys()[asteroid_size])
 	EventBus.asteroid_destroyed.emit(global_position, size_name, "normal")

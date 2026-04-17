@@ -28,7 +28,9 @@ func _process(delta: float) -> void:
 	if is_dead:
 		return
 	
-	pulse += delta * 6.0
+	# Pulse faster as lifetime decreases
+	var blink_speed := 4.0 + (5.0 - lifetime) * 3.0
+	pulse += delta * blink_speed
 	lifetime -= delta
 	
 	# Blink faster as lifetime decreases

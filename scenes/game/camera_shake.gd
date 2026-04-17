@@ -29,7 +29,11 @@ func _process(delta: float) -> void:
 	if slow_mo_timer > 0:
 		slow_mo_timer -= get_process_delta_time()  # Use unscaled time
 		if slow_mo_timer <= 0:
-			Engine.time_scale = 1.0
+			# Don't reset if powerup slow_mo is still active
+			if PowerupManager.is_slow_mo_active():
+				Engine.time_scale = 0.5
+			else:
+				Engine.time_scale = 1.0
 		else:
 			Engine.time_scale = lerpf(Engine.time_scale, slow_mo_target, 0.1)
 
