@@ -154,12 +154,15 @@ func _fire_bullet() -> void:
 		bullet.speed = bullet_speed
 		bullet.color = ship_color
 		bullets_node.add_child(bullet)
+	
+	AudioManager.play_sfx("shoot")
 
 	heat += heat_per_shot
 	if heat >= 100.0:
 		heat = 100.0
 		is_overheated = true
 		overheat_timer = overheat_lockout
+		AudioManager.play_sfx("overheat")
 	
 	# Slight recoil screen shake
 	var cam := _get_camera()

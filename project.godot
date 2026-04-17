@@ -21,6 +21,7 @@ EventBus="*res://scripts/autoload/event_bus.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 GameData="*res://scripts/autoload/game_data.gd"
 PowerupManager="*res://scripts/autoload/powerup_manager.gd"
+AudioManager="*res://scripts/autoload/audio_manager.gd"
 
 [display]
 

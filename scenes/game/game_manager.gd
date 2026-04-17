@@ -252,6 +252,7 @@ func _use_bomb() -> void:
 	# Screen flash
 	if screen_flash and screen_flash.has_method("flash_bomb"):
 		screen_flash.flash_bomb()
+	AudioManager.play_sfx("bomb")
 	
 	# Destroy all asteroids
 	for asteroid in asteroids_container.get_children():
@@ -296,6 +297,7 @@ func _check_player_collisions() -> void:
 func _on_player_died() -> void:
 	current_state = State.GAME_OVER
 	GameData.end_game()
+	AudioManager.play_sfx("player_death")
 	if screen_flash and screen_flash.has_method("flash_damage"):
 		screen_flash.flash_damage()
 	EventBus.game_over.emit(GameData.score, GameData.wave)
@@ -303,6 +305,7 @@ func _on_player_died() -> void:
 func _on_asteroid_destroyed(pos: Vector2, size_name: String, _type: String) -> void:
 	combo_timer = COMBO_TIMEOUT
 	GameData.total_asteroids_destroyed += 1
+	AudioManager.play_sfx("asteroid_hit")
 	
 	# Spawn coins from destroyed asteroid
 	_spawn_coins_at(pos, size_name)
