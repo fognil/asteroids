@@ -216,7 +216,8 @@ func _draw_hangar(vp: Vector2, font: Font, time: float) -> void:
 		
 		var is_equipped := GameData.equipped_ship == ship_id
 		var is_unlocked: bool = ship_data.get("unlocked", false)
-		var card_color := stats["color"] if is_unlocked else Color(0.3, 0.3, 0.3)
+		var ship_col: Color = stats["color"]
+		var card_color: Color = ship_col if is_unlocked else Color(0.3, 0.3, 0.3)
 		var alpha := 1.0 if is_unlocked else 0.4
 		
 		# Card bg
