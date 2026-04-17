@@ -36,6 +36,25 @@ func _ready() -> void:
 	EventBus.enemy_destroyed.connect(_on_enemy_destroyed)
 	EventBus.boss_defeated.connect(_on_boss_defeated)
 	
+	# Create pause screen
+	var pause: Control = load("res://scenes/game/pause_screen.gd").new()
+	pause.anchors_preset = Control.PRESET_FULL_RECT
+	pause.anchor_right = 1.0
+	pause.anchor_bottom = 1.0
+	pause.name = "PauseScreen"
+	get_parent().add_child.call_deferred(pause)
+	
+	# Create tutorial overlay
+	var tutorial: Control = load("res://scenes/ui/tutorial_overlay.gd").new()
+	tutorial.anchors_preset = Control.PRESET_FULL_RECT
+	tutorial.anchor_right = 1.0
+	tutorial.anchor_bottom = 1.0
+	tutorial.name = "TutorialOverlay"
+	get_parent().add_child.call_deferred(tutorial)
+	
+	# Reset ad session
+	AdManager.reset_session()
+	
 	start_game()
 
 func _process(delta: float) -> void:
@@ -58,6 +77,11 @@ func start_game() -> void:
 	player.respawn()
 	_clear_all()
 	_start_next_wave()
+	
+	# Start tutorial for new players
+	var tutorial := get_tree().root.find_child("TutorialOverlay", true, false)
+	if tutorial and tutorial.has_method("start_tutorial"):
+		tutorial.start_tutorial()
 
 func _clear_all() -> void:
 	for child in asteroids_container.get_children():
