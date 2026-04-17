@@ -211,5 +211,5 @@ func _draw() -> void:
 	var bar_w := boss_size * 0.8
 	draw_rect(Rect2(-bar_w / 2, -boss_size * 0.45 - 20, bar_w, 5), Color(0.2, 0.2, 0.2, 0.5))
 	draw_rect(Rect2(-bar_w / 2, -boss_size * 0.45 - 20, bar_w * hp_ratio, 5), Color(dc, 0.8))
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	draw_string(font, Vector2(-40, -boss_size * 0.45 - 25), "VOID SENTINEL", HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(dc, 0.6))

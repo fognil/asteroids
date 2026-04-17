@@ -73,7 +73,7 @@ func _draw() -> void:
 		return
 	
 	var vp := get_viewport_rect().size
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	var claimed: Array = GameData.settings.get("achievements_claimed", [])
 	
 	# Header + count

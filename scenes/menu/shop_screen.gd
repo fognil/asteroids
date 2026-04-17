@@ -56,7 +56,7 @@ func _draw() -> void:
 		return
 	
 	var vp := get_viewport_rect().size
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	
 	# Sub-tabs
 	var tab_names := ["Coins", "Gems", "Offers"]

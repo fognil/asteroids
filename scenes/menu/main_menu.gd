@@ -194,7 +194,7 @@ func _start_game() -> void:
 func _draw() -> void:
 	var vp := get_viewport_rect().size
 	var time := Time.get_ticks_msec() / 1000.0
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	
 	# Background
 	draw_rect(Rect2(0, 0, vp.x, vp.y), Color(0.02, 0.02, 0.04))

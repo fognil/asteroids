@@ -116,7 +116,7 @@ func _draw() -> void:
 		return
 	
 	var vp := get_viewport_rect().size
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	var current_tier: int = GameData.settings.get("bp_tier", 0)
 	var current_xp: int = GameData.settings.get("bp_xp", 0)
 	var has_premium: bool = GameData.settings.get("bp_premium", false)

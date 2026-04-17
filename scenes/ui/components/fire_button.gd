@@ -38,7 +38,7 @@ func _draw() -> void:
 	draw_arc(Vector2.ZERO, button_radius, 0, TAU, 32, Color(1, 1, 1, 0.3), 2.0 * sc, true)
 	
 	# "FIRE" text
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	var fs := int(18 * sc)
 	var text_size := font.get_string_size("FIRE", HORIZONTAL_ALIGNMENT_CENTER, -1, fs)
 	draw_string(font, Vector2(-text_size.x / 2, fs * 0.35), "FIRE", HORIZONTAL_ALIGNMENT_CENTER, -1, fs, Color(1, 1, 1, 0.8))

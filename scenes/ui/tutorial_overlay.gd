@@ -67,7 +67,7 @@ func _draw() -> void:
 		return
 	
 	var vp := get_viewport_rect().size
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	var current: Dictionary = STEPS[step]
 	var text: String = current["text"]
 	var highlight: String = current["highlight"]

@@ -38,7 +38,7 @@ func _draw() -> void:
 		return
 	
 	var vp := get_viewport_rect().size
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	
 	# Header
 	NeonIcons.draw_trophy(self, Vector2(48, 78), 8.0, Color(1, 0.85, 0.2))

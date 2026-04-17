@@ -107,7 +107,7 @@ func _draw() -> void:
 		return
 	
 	var vp := get_viewport_rect().size
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	
 	# Dim
 	draw_rect(Rect2(0, 0, vp.x, vp.y), Color(0, 0, 0, 0.7))

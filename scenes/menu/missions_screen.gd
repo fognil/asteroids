@@ -165,7 +165,7 @@ func _draw() -> void:
 		return
 	
 	var vp := get_viewport_rect().size
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	var x: float = 40.0
 	var card_w := vp.x - 80
 	var card_h: float = 50.0

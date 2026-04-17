@@ -293,5 +293,5 @@ func _draw() -> void:
 	draw_rect(Rect2(bar_pos, Vector2(bar_w * hp_ratio, bar_h)), Color(draw_color, 0.8))
 	
 	# Boss name
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	draw_string(font, Vector2(-30, -boss_size * 0.55 - 22), "ROCK TITAN", HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(draw_color, 0.6))

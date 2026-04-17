@@ -212,5 +212,5 @@ func _draw() -> void:
 	var bar_w := head_size * 2
 	draw_rect(Rect2(-bar_w / 2, -head_size - 20, bar_w, 5), Color(0.2, 0.2, 0.2, 0.5))
 	draw_rect(Rect2(-bar_w / 2, -head_size - 20, bar_w * hp_ratio, 5), Color(hc, 0.8))
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	draw_string(font, Vector2(-35, -head_size - 25), "COMET WORM", HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(hc, 0.6))

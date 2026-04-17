@@ -40,7 +40,7 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, button_radius, color)
 	draw_arc(Vector2.ZERO, button_radius, 0, TAU, 32, Color(1, 0.6, 0, 0.3), 3.0 * sc, true)
 	
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	var fs := int(18 * sc)
 	var text := "BOMB x%d" % GameData.bombs
 	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, fs)

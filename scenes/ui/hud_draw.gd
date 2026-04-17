@@ -49,13 +49,13 @@ func _draw_heat_bar(vp: Vector2) -> void:
 	
 	# Overheat warning
 	if heat_ratio > 0.9:
-		var font := ThemeDB.fallback_font
+		var font := ScreenWrap.neon_font
 		var fs := int(20 * sc)
 		draw_string(font, Vector2(bar_x + bar_w / 2 - 50 * sc, bar_y - 8 * sc), "OVERHEAT!", HORIZONTAL_ALIGNMENT_CENTER, -1, fs, Color(1, 0.3, 0.3, 0.9))
 
 func _draw_active_powerups(vp: Vector2) -> void:
 	var sc := ScreenWrap.get_ui_scale()
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	var x_start := 30.0 * sc
 	var y_pos := vp.y - 110.0 * sc
 	var icon_spacing := 90.0 * sc
@@ -92,7 +92,7 @@ func _draw_active_powerups(vp: Vector2) -> void:
 
 func _draw_game_over(vp: Vector2) -> void:
 	var sc := ScreenWrap.get_ui_scale()
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	
 	# Semi-transparent overlay
 	draw_rect(Rect2(0, 0, vp.x, vp.y), Color(0, 0, 0, 0.4))
@@ -155,7 +155,7 @@ func _draw_boss_hp(vp: Vector2) -> void:
 	if not "hp" in boss or not "max_hp" in boss:
 		return
 	
-	var font := ThemeDB.fallback_font
+	var font := ScreenWrap.neon_font
 	var hp_val: int = boss.hp
 	var max_hp_val: int = boss.max_hp
 	var ratio := clampf(float(hp_val) / float(max_hp_val), 0.0, 1.0)
