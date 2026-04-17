@@ -1,0 +1,192 @@
+[gd_scene load_steps=10 format=3 uid="uid://game001"]
+
+[ext_resource type="Script" path="res://scenes/game/game_manager.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
+[ext_resource type="Script" path="res://scenes/ui/hud.gd" id="3"]
+[ext_resource type="Script" path="res://scenes/game/star_background.gd" id="4"]
+[ext_resource type="Script" path="res://scenes/ui/components/virtual_joystick.gd" id="5"]
+[ext_resource type="Script" path="res://scenes/ui/components/fire_button.gd" id="6"]
+[ext_resource type="Script" path="res://scenes/ui/components/bomb_button.gd" id="7"]
+[ext_resource type="Script" path="res://scenes/game/camera_shake.gd" id="8"]
+
+[sub_resource type="Environment" id="Environment_001"]
+background_mode = 3
+glow_enabled = true
+glow_intensity = 0.75
+glow_strength = 1.1
+glow_bloom = 0.1
+glow_hdr_threshold = 0.8
+
+[node name="Game" type="Node2D"]
+
+[node name="Background" type="Node2D" parent="."]
+script = ExtResource("4")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_001")
+
+[node name="GameWorld" type="Node2D" parent="."]
+
+[node name="Player" parent="GameWorld" instance=ExtResource("2")]
+
+[node name="Asteroids" type="Node2D" parent="GameWorld"]
+
+[node name="Bullets" type="Node2D" parent="GameWorld"]
+
+[node name="Effects" type="Node2D" parent="GameWorld"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+script = ExtResource("8")
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("1")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3")
+
+[node name="ScoreLabel" type="Label" parent="HUD"]
+offset_left = 20.0
+offset_top = 10.0
+offset_right = 300.0
+offset_bottom = 45.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "SCORE: 0"
+
+[node name="HighScoreLabel" type="Label" parent="HUD"]
+offset_left = 320.0
+offset_top = 10.0
+offset_right = 600.0
+offset_bottom = 45.0
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+theme_override_font_sizes/font_size = 18
+text = "HIGH: 0"
+
+[node name="LivesLabel" type="Label" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -250.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = 45.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 2
+text = "♥♥♥"
+
+[node name="WaveLabel" type="Label" parent="HUD"]
+offset_left = 20.0
+offset_top = 45.0
+offset_right = 200.0
+offset_bottom = 75.0
+theme_override_colors/font_color = Color(0, 1, 1, 0.7)
+theme_override_font_sizes/font_size = 16
+text = "WAVE: 1"
+
+[node name="ComboLabel" type="Label" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 200.0
+offset_top = 200.0
+offset_right = 500.0
+offset_bottom = 350.0
+theme_override_colors/font_color = Color(1, 1, 0, 0.6)
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WaveAnnounce" type="Label" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -40.0
+offset_right = 200.0
+offset_bottom = 40.0
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 48
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "W A V E  1"
+
+[node name="HeatBarBg" type="ColorRect" parent="HUD"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -75.0
+offset_top = -30.0
+offset_right = 75.0
+offset_bottom = -22.0
+color = Color(0.15, 0.15, 0.15, 0.8)
+
+[node name="HeatBar" type="ColorRect" parent="HUD/HeatBarBg"]
+offset_right = 150.0
+offset_bottom = 8.0
+color = Color(0, 0.7, 1, 1)
+
+[node name="GameOverPanel" type="Control" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="GameOverBg" type="ColorRect" parent="HUD/GameOverPanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.7)
+
+[node name="GameOverTitle" type="Label" parent="HUD/GameOverPanel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = -90.0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/font_size = 52
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "G A M E   O V E R"
+
+[node name="GameOverScore" type="Label" parent="HUD/GameOverPanel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -60.0
+offset_right = 200.0
+offset_bottom = 120.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "SCORE: 0"
+
+[node name="TouchControls" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="VirtualJoystick" type="Control" parent="TouchControls"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("5")
+
+[node name="FireButton" type="Control" parent="TouchControls"]
+script = ExtResource("6")
+
+[node name="BombButton" type="Control" parent="TouchControls"]
+script = ExtResource("7")
