@@ -324,9 +324,27 @@ func _spawn_boss() -> void:
 	for child in enemies_container.get_children():
 		child.queue_free()
 	
-	# Spawn Rock Titan
-	var boss: Area2D = load("res://scenes/bosses/rock_titan.tscn").instantiate()
-	boss.position = Vector2(960, 200)
+	# Select boss based on wave
+	var boss_scene: String
+	match GameData.wave:
+		5: boss_scene = "res://scenes/bosses/rock_titan.tscn"
+		10: boss_scene = "res://scenes/bosses/nebula_queen.tscn"
+		15: boss_scene = "res://scenes/bosses/comet_worm.tscn"
+		20: boss_scene = "res://scenes/bosses/void_sentinel.tscn"
+		25: boss_scene = "res://scenes/bosses/black_hole_king.tscn"
+		_:
+			# Post-25: cycle through bosses
+			var boss_pool := [
+				"res://scenes/bosses/rock_titan.tscn",
+				"res://scenes/bosses/nebula_queen.tscn",
+				"res://scenes/bosses/comet_worm.tscn",
+				"res://scenes/bosses/void_sentinel.tscn",
+				"res://scenes/bosses/black_hole_king.tscn",
+			]
+			boss_scene = boss_pool[randi() % boss_pool.size()]
+	
+	var boss: Area2D = load(boss_scene).instantiate()
+	boss.position = Vector2(960, 250)
 	enemies_container.add_child(boss)
 
 func _on_boss_defeated(_boss_id: String) -> void:

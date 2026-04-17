@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://boss003"]
+
+[ext_resource type="Script" path="res://scenes/bosses/comet_worm.gd" id="1"]
+
+[node name="CometWorm" type="Area2D"]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1")

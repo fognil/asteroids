@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://boss005"]
+
+[ext_resource type="Script" path="res://scenes/bosses/black_hole_king.gd" id="1"]
+
+[node name="BlackHoleKing" type="Area2D"]
+collision_layer = 32
+collision_mask = 2
+script = ExtResource("1")
