@@ -122,14 +122,22 @@ func _handle_touch(pos: Vector2) -> void:
 			settings_screen.show_settings()
 		return
 	
-	# PLAY button area (center)
-	var play_rect := Rect2(vp.x / 2 - 120, vp.y * 0.58, 240, 55)
+	# PLAY button area (center, pill-shaped)
+	var play_w: float = 260.0
+	var play_h: float = 55.0
+	var play_rect := Rect2((vp.x - play_w) / 2, vp.y * 0.60, play_w, play_h)
 	if play_rect.has_point(pos):
 		_start_game()
 		return
 	
-	# Leaderboard button (below play, left)
-	var lb_rect := Rect2(vp.x / 2 - 140, vp.y * 0.68, 130, 35)
+	# Leaderboard button
+	var btn_w: float = 165.0
+	var btn_h: float = 42.0
+	var gap: float = 12.0
+	var total_w := btn_w * 2 + gap
+	var btn_y := vp.y * 0.74
+	var lb_x := (vp.x - total_w) / 2
+	var lb_rect := Rect2(lb_x, btn_y, btn_w, btn_h)
 	if lb_rect.has_point(pos):
 		_hide_subscreens()
 		if leaderboard_screen:
@@ -138,8 +146,9 @@ func _handle_touch(pos: Vector2) -> void:
 			achievements_screen.visible = false
 		return
 	
-	# Achievements button (below play, right)
-	var ach_rect := Rect2(vp.x / 2 + 10, vp.y * 0.68, 130, 35)
+	# Achievements button
+	var ach_x := lb_x + btn_w + gap
+	var ach_rect := Rect2(ach_x, btn_y, btn_w, btn_h)
 	if ach_rect.has_point(pos):
 		_hide_subscreens()
 		if achievements_screen:
@@ -148,8 +157,8 @@ func _handle_touch(pos: Vector2) -> void:
 			leaderboard_screen.visible = false
 		return
 	
-	# Bottom nav tabs
-	var tab_y := vp.y - 60
+	# Bottom nav tabs (70px height)
+	var tab_y := vp.y - 70
 	if pos.y > tab_y:
 		var tab_width := vp.x / 5.0
 		var tab_idx := int(pos.x / tab_width)
@@ -179,11 +188,17 @@ func _draw() -> void:
 	# Background
 	draw_rect(Rect2(0, 0, vp.x, vp.y), Color(0.02, 0.02, 0.04))
 	
+	# Nebula gradient
+	_draw_nebula_gradient(vp)
+	
 	# Stars
 	for star in star_bg:
 		var twinkle := 0.4 + 0.6 * sin(time * star["speed"] + star["offset"])
 		var spos: Vector2 = star["pos"]
 		draw_circle(spos, star["size"], Color(1, 1, 1, star["brightness"] * twinkle))
+	
+	# Hex grid
+	_draw_hex_grid(vp, time)
 	
 	if selected_tab >= 0:
 		_draw_sub_screen(vp, font, time)
@@ -197,127 +212,303 @@ func _draw() -> void:
 	_draw_nav_bar(vp, font)
 
 func _draw_status_bar(vp: Vector2, font: Font) -> void:
-	# Top bar background
-	draw_rect(Rect2(0, 0, vp.x, 45), Color(0, 0, 0, 0.5))
+	# Frosted glass top bar
+	draw_rect(Rect2(0, 0, vp.x, 50), Color(0.02, 0.02, 0.06, 0.85))
+	draw_line(Vector2(0, 50), Vector2(vp.x, 50), Color(0.2, 0.4, 0.5, 0.3), 1.0)
 	
-	# Coins
-	NeonIcons.draw_coin(self, Vector2(28, 22), 8.0)
-	draw_string(font, Vector2(42, 30), str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(1, 0.85, 0.2))
-	# Gems
-	NeonIcons.draw_gem(self, Vector2(188, 22), 8.0)
-	draw_string(font, Vector2(202, 30), str(GameData.gems), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0.4, 0.8, 1))
-	# Level
-	NeonIcons.draw_trophy(self, Vector2(308, 22), 8.0)
-	draw_string(font, Vector2(322, 30), "Lv." + str(GameData.player_level), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.8, 0.8, 0.8))
-	# Settings gear
-	NeonIcons.draw_gear(self, Vector2(vp.x - 35, 23), 12.0)
+	# Coins — gold circle badge + amount
+	var coin_x: float = 20.0
+	draw_circle(Vector2(coin_x + 15, 25), 13.0, Color(0.3, 0.2, 0, 0.5))
+	draw_arc(Vector2(coin_x + 15, 25), 13.0, 0, TAU, 16, Color(1, 0.85, 0.2, 0.5), 1.5, true)
+	NeonIcons.draw_coin(self, Vector2(coin_x + 15, 25), 7.0, Color(1, 0.85, 0.2))
+	draw_string(font, Vector2(coin_x + 34, 31), str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(1, 1, 1, 0.9))
+	
+	# Gems — diamond badge + amount
+	var gem_x: float = 160.0
+	draw_circle(Vector2(gem_x + 15, 25), 13.0, Color(0, 0.1, 0.2, 0.5))
+	draw_arc(Vector2(gem_x + 15, 25), 13.0, 0, TAU, 16, Color(0.4, 0.8, 1, 0.5), 1.5, true)
+	NeonIcons.draw_gem(self, Vector2(gem_x + 15, 25), 7.0, Color(0.4, 0.8, 1))
+	draw_string(font, Vector2(gem_x + 34, 31), str(GameData.gems), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(1, 1, 1, 0.9))
+	
+	# Level — right side with shield badge
+	var level_text := "LEVEL " + str(GameData.player_level)
+	var level_size := font.get_string_size(level_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18)
+	var lx := vp.x - level_size.x - 55
+	NeonIcons.draw_medal(self, Vector2(lx, 25), 9.0, Color(0, 1, 1, 0.8))
+	draw_string(font, Vector2(lx + 18, 31), level_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0, 1, 1, 0.9))
+	
+	# Settings gear far right
+	NeonIcons.draw_gear(self, Vector2(vp.x - 30, 25), 11.0, Color(0.5, 0.5, 0.6, 0.6))
+
+func _draw_hex_grid(vp: Vector2, time: float) -> void:
+	## Subtle hexagonal grid background
+	var hex_size: float = 40.0
+	var hex_h := hex_size * 2.0
+	var hex_w := sqrt(3.0) * hex_size
+	var alpha_base: float = 0.04
+	
+	for row in int(vp.y / (hex_h * 0.75)) + 2:
+		for col in int(vp.x / hex_w) + 2:
+			var cx := float(col) * hex_w + (hex_w * 0.5 if row % 2 == 1 else 0.0)
+			var cy := float(row) * hex_h * 0.75
+			
+			# Distance from center for fading
+			var dist := Vector2(cx, cy).distance_to(vp / 2) / (vp.length() / 2)
+			var alpha := alpha_base * clampf(1.0 - dist * 0.5, 0.2, 1.0)
+			
+			# Pulse effect — subtle wave
+			alpha += 0.01 * sin(time * 0.5 + cx * 0.01 + cy * 0.01)
+			
+			var hex_pts := PackedVector2Array()
+			for i in 7:
+				var angle := float(i) / 6.0 * TAU + PI / 6
+				hex_pts.append(Vector2(cx + cos(angle) * hex_size, cy + sin(angle) * hex_size))
+			draw_polyline(hex_pts, Color(0.3, 0.5, 0.7, alpha), 0.5, true)
+
+func _draw_nebula_gradient(vp: Vector2) -> void:
+	## Subtle purple/blue nebula gradient in background
+	# Purple glow right side
+	for i in 8:
+		var r := 100.0 + float(i) * 40.0
+		draw_circle(Vector2(vp.x * 0.85, vp.y * 0.3), r, Color(0.15, 0.05, 0.25, 0.015))
+	# Blue glow left side
+	for i in 6:
+		var r := 80.0 + float(i) * 35.0
+		draw_circle(Vector2(vp.x * 0.15, vp.y * 0.7), r, Color(0.05, 0.1, 0.2, 0.015))
 
 func _draw_ship_preview(vp: Vector2, font: Font, time: float) -> void:
-	var center := Vector2(vp.x / 2, vp.y * 0.35)
+	var center := Vector2(vp.x / 2, vp.y * 0.33)
 	var ship_color: Color = GameData.get_ship_color()
-	var s: float = 35.0
-	
-	# Draw rotating ship
-	var pts := PackedVector2Array()
+	var s: float = 55.0  # Bigger ship
 	var rot := ship_rotation
-	var ship_points_raw := [
-		Vector2(0, -s), Vector2(-s * 0.6, s * 0.7), Vector2(-s * 0.15, s * 0.4),
-		Vector2(0, s * 0.55), Vector2(s * 0.15, s * 0.4), Vector2(s * 0.6, s * 0.7), Vector2(0, -s)
+	
+	# === Detailed wireframe ship ===
+	# Main body
+	var body := PackedVector2Array()
+	var body_raw := [
+		Vector2(0, -s * 1.2),          # Nose tip
+		Vector2(-s * 0.12, -s * 0.9),  # Nose left
+		Vector2(-s * 0.2, -s * 0.4),   # Cockpit left
+		Vector2(-s * 0.25, -s * 0.1),  # Body middle left
+		Vector2(-s * 0.22, s * 0.3),   # Body lower left
+		Vector2(-s * 0.18, s * 0.6),   # Tail left
+		Vector2(-s * 0.1, s * 0.7),    # Tail inner left
+		Vector2(0, s * 0.55),           # Tail center
+		Vector2(s * 0.1, s * 0.7),     # Tail inner right
+		Vector2(s * 0.18, s * 0.6),    # Tail right
+		Vector2(s * 0.22, s * 0.3),    # Body lower right
+		Vector2(s * 0.25, -s * 0.1),   # Body middle right
+		Vector2(s * 0.2, -s * 0.4),    # Cockpit right
+		Vector2(s * 0.12, -s * 0.9),   # Nose right
+		Vector2(0, -s * 1.2),          # Close
 	]
-	for p in ship_points_raw:
-		pts.append(center + p.rotated(rot))
+	for p in body_raw:
+		body.append(center + p.rotated(rot))
 	
-	# Glow
-	draw_polyline(pts, Color(ship_color, 0.2), 8.0, true)
-	draw_polyline(pts, Color(ship_color, 0.5), 4.0, true)
-	draw_polyline(pts, ship_color, 2.0, true)
+	# Left wing
+	var lwing := PackedVector2Array()
+	var lwing_raw := [
+		Vector2(-s * 0.25, -s * 0.1),
+		Vector2(-s * 0.7, s * 0.3),
+		Vector2(-s * 0.8, s * 0.5),
+		Vector2(-s * 0.65, s * 0.55),
+		Vector2(-s * 0.22, s * 0.3),
+	]
+	for p in lwing_raw:
+		lwing.append(center + p.rotated(rot))
 	
-	# Ship name
+	# Right wing
+	var rwing := PackedVector2Array()
+	var rwing_raw := [
+		Vector2(s * 0.25, -s * 0.1),
+		Vector2(s * 0.7, s * 0.3),
+		Vector2(s * 0.8, s * 0.5),
+		Vector2(s * 0.65, s * 0.55),
+		Vector2(s * 0.22, s * 0.3),
+	]
+	for p in rwing_raw:
+		rwing.append(center + p.rotated(rot))
+	
+	# Engine pods
+	var leng := PackedVector2Array()
+	for p in [Vector2(-s * 0.45, s * 0.3), Vector2(-s * 0.5, s * 0.65), Vector2(-s * 0.35, s * 0.65), Vector2(-s * 0.3, s * 0.3)]:
+		leng.append(center + p.rotated(rot))
+	var reng := PackedVector2Array()
+	for p in [Vector2(s * 0.45, s * 0.3), Vector2(s * 0.5, s * 0.65), Vector2(s * 0.35, s * 0.65), Vector2(s * 0.3, s * 0.3)]:
+		reng.append(center + p.rotated(rot))
+	
+	# Cockpit lines
+	var cockpit := PackedVector2Array()
+	for p in [Vector2(-s * 0.1, -s * 0.6), Vector2(0, -s * 0.8), Vector2(s * 0.1, -s * 0.6), Vector2(0, -s * 0.35), Vector2(-s * 0.1, -s * 0.6)]:
+		cockpit.append(center + p.rotated(rot))
+	
+	# Cross struts (detail lines)
+	var strut1_a := center + Vector2(-s * 0.35, s * 0.1).rotated(rot)
+	var strut1_b := center + Vector2(-s * 0.6, s * 0.4).rotated(rot)
+	var strut2_a := center + Vector2(s * 0.35, s * 0.1).rotated(rot)
+	var strut2_b := center + Vector2(s * 0.6, s * 0.4).rotated(rot)
+	
+	# === Draw with glow layers ===
+	# Layer 1: Wide glow
+	var glow1 := Color(ship_color, 0.08)
+	draw_polyline(body, glow1, 10.0, true)
+	draw_polyline(lwing, glow1, 10.0, true)
+	draw_polyline(rwing, glow1, 10.0, true)
+	
+	# Layer 2: Medium glow
+	var glow2 := Color(ship_color, 0.2)
+	draw_polyline(body, glow2, 4.0, true)
+	draw_polyline(lwing, glow2, 4.0, true)
+	draw_polyline(rwing, glow2, 4.0, true)
+	
+	# Layer 3: Sharp lines
+	draw_polyline(body, ship_color, 1.5, true)
+	draw_polyline(lwing, ship_color, 1.5, true)
+	draw_polyline(rwing, ship_color, 1.5, true)
+	draw_polyline(leng, Color(ship_color, 0.7), 1.0, true)
+	draw_polyline(reng, Color(ship_color, 0.7), 1.0, true)
+	draw_polyline(cockpit, Color(ship_color, 0.6), 1.0, true)
+	
+	# Detail struts
+	draw_line(strut1_a, strut1_b, Color(ship_color, 0.3), 0.5)
+	draw_line(strut2_a, strut2_b, Color(ship_color, 0.3), 0.5)
+	
+	# Engine glow dots (pulsing)
+	var engine_pulse := 0.5 + 0.5 * sin(time * 4.0)
+	var el := center + Vector2(-s * 0.42, s * 0.65).rotated(rot)
+	var er := center + Vector2(s * 0.42, s * 0.65).rotated(rot)
+	draw_circle(el, 3.0 + engine_pulse * 2.0, Color(ship_color, 0.3 + engine_pulse * 0.3))
+	draw_circle(er, 3.0 + engine_pulse * 2.0, Color(ship_color, 0.3 + engine_pulse * 0.3))
+	
+	# Ship name with glow
 	var ship_name: String = ""
 	if GameData.equipped_ship in GameData.SHIP_STATS:
-		ship_name = GameData.SHIP_STATS[GameData.equipped_ship]["name"]
-	var name_size := font.get_string_size(ship_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 20)
-	draw_string(font, Vector2((vp.x - name_size.x) / 2, center.y + s + 30), ship_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 20, Color(ship_color, 0.9))
+		ship_name = GameData.SHIP_STATS[GameData.equipped_ship]["name"].to_upper()
+	var name_size := font.get_string_size(ship_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 22)
+	var name_x := (vp.x - name_size.x) / 2
+	var name_y := center.y + s * 1.2 + 25
+	# Text glow
+	draw_string(font, Vector2(name_x, name_y), ship_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 22, Color(ship_color, 0.3))
+	draw_string(font, Vector2(name_x, name_y), ship_name, HORIZONTAL_ALIGNMENT_CENTER, -1, 22, Color(ship_color, 0.9))
 
 func _draw_play_button(vp: Vector2, font: Font, time: float) -> void:
-	var btn_x := vp.x / 2 - 120
-	var btn_y := vp.y * 0.58
-	var btn_w: float = 240.0
+	var btn_w: float = 260.0
 	var btn_h: float = 55.0
+	var btn_x := (vp.x - btn_w) / 2
+	var btn_y := vp.y * 0.60
+	var r := btn_h / 2.0  # Pill radius
+	var pulse := 0.5 + 0.5 * sin(time * 2.5)
 	
-	# Glow pulse
-	var pulse := 0.5 + 0.5 * sin(time * 2.0)
-	var glow_color := Color(0, 1, 1, 0.1 + pulse * 0.1)
-	draw_rect(Rect2(btn_x - 4, btn_y - 4, btn_w + 8, btn_h + 8), glow_color)
+	# === Pill-shaped button ===
+	# Build pill outline
+	var pill := PackedVector2Array()
+	# Left semicircle
+	for i in 13:
+		var angle := PI / 2 + float(i) / 12.0 * PI
+		pill.append(Vector2(btn_x + r + cos(angle) * r, btn_y + r + sin(angle) * r))
+	# Top line
+	pill.append(Vector2(btn_x + btn_w - r, btn_y))
+	# Right semicircle
+	for i in 13:
+		var angle := -PI / 2 + float(i) / 12.0 * PI
+		pill.append(Vector2(btn_x + btn_w - r + cos(angle) * r, btn_y + r + sin(angle) * r))
+	# Bottom line
+	pill.append(Vector2(btn_x + r, btn_y + btn_h))
+	pill.append(pill[0])
 	
-	# Button background
-	draw_rect(Rect2(btn_x, btn_y, btn_w, btn_h), Color(0, 0.2, 0.3, 0.6))
-	# Border
-	var border_pts := PackedVector2Array([
-		Vector2(btn_x, btn_y), Vector2(btn_x + btn_w, btn_y),
-		Vector2(btn_x + btn_w, btn_y + btn_h), Vector2(btn_x, btn_y + btn_h), Vector2(btn_x, btn_y)
-	])
-	draw_polyline(border_pts, Color(0, 1, 1, 0.6 + pulse * 0.3), 2.0)
+	# Glow layer (wide, pulsing)
+	draw_polyline(pill, Color(0, 1, 1, 0.06 + pulse * 0.06), 12.0, true)
+	# Fill (dark glass)
+	draw_rect(Rect2(btn_x + r, btn_y, btn_w - r * 2, btn_h), Color(0, 0.15, 0.2, 0.5))
+	draw_circle(Vector2(btn_x + r, btn_y + r), r, Color(0, 0.15, 0.2, 0.5))
+	draw_circle(Vector2(btn_x + btn_w - r, btn_y + r), r, Color(0, 0.15, 0.2, 0.5))
+	# Border (bright)
+	draw_polyline(pill, Color(0, 1, 1, 0.5 + pulse * 0.3), 2.0, true)
+	# Inner bright edge
+	draw_polyline(pill, Color(0, 1, 1, 0.15 + pulse * 0.1), 4.0, true)
 	
-	# Text
-	var play_text := "P L A Y"
-	var text_size := font.get_string_size(play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 26)
-	var text_x := (vp.x - text_size.x) / 2
-	NeonIcons.draw_play(self, Vector2(text_x - 18, btn_y + 28), 10.0, Color(0, 1, 1))
-	draw_string(font, Vector2(text_x, btn_y + 36), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 26, Color(0, 1, 1))
+	# Underline glow
+	draw_line(Vector2(btn_x + 30, btn_y + btn_h + 4), Vector2(btn_x + btn_w - 30, btn_y + btn_h + 4), Color(0, 1, 1, 0.15 + pulse * 0.1), 3.0)
+	
+	# Play icon + text
+	var play_text := "PLAY"
+	var text_size := font.get_string_size(play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 28)
+	var tx := (vp.x - text_size.x) / 2
+	NeonIcons.draw_play(self, Vector2(tx - 24, btn_y + btn_h / 2), 12.0, Color(0, 1, 1))
+	# Text glow
+	draw_string(font, Vector2(tx, btn_y + 38), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 28, Color(0, 1, 1, 0.4))
+	draw_string(font, Vector2(tx, btn_y + 38), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, 28, Color(0, 1, 1))
 
 func _draw_best_scores(vp: Vector2, font: Font) -> void:
-	var y := vp.y * 0.72
-	var text := "Best Score: " + str(GameData.high_score) + "   |   Best Wave: " + str(GameData.best_wave)
-	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, 14)
-	draw_string(font, Vector2((vp.x - text_size.x) / 2, y), text, HORIZONTAL_ALIGNMENT_CENTER, -1, 14, Color(0.5, 0.5, 0.5, 0.7))
+	# === Glass panel buttons: Leaderboard + Achievements ===
+	var btn_w: float = 165.0
+	var btn_h: float = 42.0
+	var gap: float = 12.0
+	var total_w := btn_w * 2 + gap
+	var btn_y := vp.y * 0.74
+	var lb_x := (vp.x - total_w) / 2
+	var ach_x := lb_x + btn_w + gap
 	
-	# Leaderboard + Achievements buttons
-	var btn_y := vp.y * 0.68
-	var lb_x := vp.x / 2 - 140
-	var ach_x := vp.x / 2 + 10
-	var bw: float = 130.0
-	var bh: float = 35.0
+	# -- Leaderboard button (gold accent) --
+	# Glass fill
+	draw_rect(Rect2(lb_x, btn_y, btn_w, btn_h), Color(0.12, 0.1, 0.03, 0.5))
+	# Border
+	draw_rect(Rect2(lb_x, btn_y, btn_w, btn_h), Color(1, 0.85, 0.2, 0.35), false, 1.5)
+	# Left accent bar
+	draw_rect(Rect2(lb_x, btn_y, 3, btn_h), Color(1, 0.85, 0.2, 0.6))
+	# Icon + text
+	NeonIcons.draw_trophy(self, Vector2(lb_x + 22, btn_y + btn_h / 2), 9.0, Color(1, 0.85, 0.2, 0.8))
+	draw_string(font, Vector2(lb_x + 40, btn_y + 27), "Leaderboard", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1, 0.85, 0.2, 0.85))
 	
-	draw_rect(Rect2(lb_x, btn_y, bw, bh), Color(0.1, 0.08, 0, 0.4))
-	draw_rect(Rect2(lb_x, btn_y, bw, bh), Color(1, 0.85, 0.2, 0.3), false, 1.0)
-	NeonIcons.draw_trophy(self, Vector2(lb_x + 14, btn_y + 18), 7.0, Color(1, 0.85, 0.2, 0.7))
-	draw_string(font, Vector2(lb_x + 28, btn_y + 23), "Leaderboard", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1, 0.85, 0.2, 0.7))
-	
-	draw_rect(Rect2(ach_x, btn_y, bw, bh), Color(0.08, 0, 0.1, 0.4))
-	draw_rect(Rect2(ach_x, btn_y, bw, bh), Color(0.6, 0.3, 1, 0.3), false, 1.0)
-	NeonIcons.draw_medal(self, Vector2(ach_x + 14, btn_y + 18), 7.0, Color(0.6, 0.3, 1, 0.7))
-	draw_string(font, Vector2(ach_x + 28, btn_y + 23), "Achievements", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.6, 0.3, 1, 0.7))
+	# -- Achievements button (purple accent) --
+	draw_rect(Rect2(ach_x, btn_y, btn_w, btn_h), Color(0.08, 0.03, 0.12, 0.5))
+	draw_rect(Rect2(ach_x, btn_y, btn_w, btn_h), Color(0.6, 0.3, 1, 0.35), false, 1.5)
+	draw_rect(Rect2(ach_x, btn_y, 3, btn_h), Color(0.6, 0.3, 1, 0.6))
+	NeonIcons.draw_medal(self, Vector2(ach_x + 22, btn_y + btn_h / 2), 9.0, Color(0.6, 0.3, 1, 0.8))
+	draw_string(font, Vector2(ach_x + 40, btn_y + 27), "Achievements", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.6, 0.3, 1, 0.85))
 
 func _draw_nav_bar(vp: Vector2, font: Font) -> void:
-	var bar_h: float = 60.0
+	var bar_h: float = 70.0
 	var bar_y := vp.y - bar_h
 	
-	# Background
-	draw_rect(Rect2(0, bar_y, vp.x, bar_h), Color(0, 0, 0, 0.7))
-	draw_line(Vector2(0, bar_y), Vector2(vp.x, bar_y), Color(0.3, 0.3, 0.3, 0.5), 1.0)
+	# Frosted glass background
+	draw_rect(Rect2(0, bar_y, vp.x, bar_h), Color(0.03, 0.03, 0.06, 0.88))
+	# Top border line
+	draw_line(Vector2(0, bar_y), Vector2(vp.x, bar_y), Color(0.2, 0.3, 0.4, 0.4), 1.0)
 	
 	var tab_names := ["Hangar", "Upgrade", "Pass", "Mission", "Shop"]
-	var tab_icons: Array[Callable] = [
-		func(p: Vector2, c: Color): NeonIcons.draw_ship_icon(self, p, 7.0, c),
-		func(p: Vector2, c: Color): NeonIcons.draw_upgrade_arrow(self, p, 7.0, c),
-		func(p: Vector2, c: Color): NeonIcons.draw_ticket(self, p, 7.0, c),
-		func(p: Vector2, c: Color): NeonIcons.draw_crosshair(self, p, 7.0, c),
-		func(p: Vector2, c: Color): NeonIcons.draw_cart(self, p, 7.0, c),
-	]
-	
 	var tab_w := vp.x / 5.0
 	
 	for i in tab_names.size():
 		var x := float(i) * tab_w
-		var tab_color := Color(0.5, 0.5, 0.5, 0.6)
-		if i == selected_tab:
-			tab_color = Color(0, 1, 1, 0.9)
-		var icon_pos := Vector2(x + tab_w / 2, bar_y + 18)
-		tab_icons[i].call(icon_pos, tab_color)
+		var cx := x + tab_w / 2.0
+		var is_active := (i == selected_tab)
+		var tab_color := Color(0.4, 0.4, 0.5, 0.5)
+		var icon_size: float = 10.0
+		var label_size_px: int = 12
+		
+		if is_active:
+			tab_color = Color(0, 1, 1, 0.95)
+			# Active tab glow background
+			draw_rect(Rect2(x + 2, bar_y, tab_w - 4, bar_h), Color(0, 0.2, 0.3, 0.15))
+			# Bottom indicator line
+			draw_line(Vector2(cx - 20, bar_y + bar_h - 3), Vector2(cx + 20, bar_y + bar_h - 3), Color(0, 1, 1, 0.7), 2.0)
+			# Icon glow
+			icon_size = 12.0
+		
+		# Draw icon
+		var icon_y := bar_y + 22.0
+		match i:
+			0: NeonIcons.draw_ship_icon(self, Vector2(cx, icon_y), icon_size, tab_color)
+			1: NeonIcons.draw_upgrade_arrow(self, Vector2(cx, icon_y), icon_size, tab_color)
+			2: NeonIcons.draw_ticket(self, Vector2(cx, icon_y), icon_size, tab_color)
+			3: NeonIcons.draw_crosshair(self, Vector2(cx, icon_y), icon_size, tab_color)
+			4: NeonIcons.draw_cart(self, Vector2(cx, icon_y), icon_size, tab_color)
+		
+		# Label
 		var label: String = tab_names[i]
-		var label_size := font.get_string_size(label, HORIZONTAL_ALIGNMENT_CENTER, -1, 10)
-		draw_string(font, Vector2(x + (tab_w - label_size.x) / 2, bar_y + 45), label, HORIZONTAL_ALIGNMENT_CENTER, -1, 10, tab_color)
+		var ls := font.get_string_size(label, HORIZONTAL_ALIGNMENT_CENTER, -1, label_size_px)
+		draw_string(font, Vector2(cx - ls.x / 2, bar_y + 50), label, HORIZONTAL_ALIGNMENT_CENTER, -1, label_size_px, tab_color)
 
 # === Sub Screens ===
 func _draw_sub_screen(vp: Vector2, font: Font, time: float) -> void:
