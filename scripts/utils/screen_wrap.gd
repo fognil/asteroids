@@ -39,5 +39,5 @@ static func get_ui_scale() -> float:
 	var vp := _get_viewport_size()
 	var base_sc := vp.y / 1080.0
 	if OS.get_name() in ["Android", "iOS"]:
-		return base_sc * 1.8
+		return base_sc * 1.3
 	return base_sc
