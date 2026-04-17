@@ -76,14 +76,14 @@ func _handle_tap(pos: Vector2) -> void:
 		
 		# Claim free
 		var claimed_free: Array = GameData.settings.get("bp_claimed_free", [])
-		if i < current_tier and not (i in claimed_free):
+		if i < current_tier and not claimed_free.has(i):
 			_claim_reward(TIERS[i]["free"], i, true)
 			return
 		
 		# Claim premium
 		if has_premium:
 			var claimed_prem: Array = GameData.settings.get("bp_claimed_premium", [])
-			if i < current_tier and not (i in claimed_prem):
+			if i < current_tier and not claimed_prem.has(i):
 				_claim_reward(TIERS[i]["premium"], i, false)
 				return
 
@@ -156,7 +156,7 @@ func _draw() -> void:
 		# Free reward (left half)
 		var free_text := _reward_text(tier["free"])
 		var free_col := Color(1, 1, 1, 0.8) if unlocked else Color(0.5, 0.5, 0.5)
-		if i in claimed_free:
+		if claimed_free.has(i):
 			free_col = Color(0, 1, 0.5, 0.5)
 			free_text = "✅ " + free_text
 		draw_string(font, Vector2(x + 40, y + 20), "FREE: " + free_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, free_col)
@@ -164,7 +164,7 @@ func _draw() -> void:
 		# Premium reward (right half)
 		var prem_text := _reward_text(tier["premium"])
 		var prem_col := Color(0.6, 0.3, 1, 0.6) if not has_premium else (Color(0.6, 0.3, 1, 0.8) if unlocked else Color(0.4, 0.3, 0.5))
-		if i in claimed_prem:
+		if claimed_prem.has(i):
 			prem_col = Color(0, 1, 0.5, 0.5)
 			prem_text = "✅ " + prem_text
 		var prem_x := x + card_w * 0.5
@@ -173,7 +173,7 @@ func _draw() -> void:
 			draw_string(font, Vector2(prem_x, y + 38), "🔒", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.3, 0.3, 0.3))
 		
 		# Claim indicator
-		if unlocked and not (i in claimed_free):
+		if unlocked and not claimed_free.has(i):
 			draw_string(font, Vector2(x + card_w - 60, y + 20), "CLAIM", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0, 1, 0.5))
 		
 		# Border

@@ -29,7 +29,8 @@ var scroll_offset: float = 0.0
 func check_achievements() -> void:
 	var claimed: Array = GameData.settings.get("achievements_claimed", [])
 	for ach in ACHIEVEMENTS:
-		if ach["id"] in claimed:
+		var ach_id: String = ach["id"]
+		if claimed.has(ach_id):
 			continue
 		var progress := _get_progress(ach)
 		var target: int = ach["target"]
@@ -89,7 +90,8 @@ func _draw() -> void:
 			continue
 		
 		var ach: Dictionary = ACHIEVEMENTS[i]
-		var is_claimed := ach["id"] in claimed
+		var ach_id: String = ach["id"]
+		var is_claimed: bool = claimed.has(ach_id)
 		var progress := _get_progress(ach)
 		var target: int = ach["target"]
 		var ratio := clampf(float(progress) / float(target), 0.0, 1.0)

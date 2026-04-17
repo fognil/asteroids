@@ -26,7 +26,7 @@ const PRODUCTS := {
 }
 
 var billing_plugin: Object = null
-var is_connected: bool = false
+var billing_connected: bool = false
 var product_details: Dictionary = {}
 
 func _ready() -> void:
@@ -47,14 +47,14 @@ func _ready() -> void:
 		print("[IAP] GodotGooglePlayBilling not available — running in editor/non-Android")
 
 func _on_connected() -> void:
-	is_connected = true
+	billing_connected = true
 	print("[IAP] Connected to Google Play Billing")
 	# Query product details
 	var product_ids := PackedStringArray(PRODUCTS.keys())
 	billing_plugin.queryProductDetails(product_ids, "inapp")
 
 func _on_disconnected() -> void:
-	is_connected = false
+	billing_connected = false
 	print("[IAP] Disconnected from billing")
 
 func _on_connect_error(_code: int, _message: String) -> void:
@@ -76,7 +76,7 @@ func _on_product_details_error(_code: int, _message: String, _ids: Array) -> voi
 	print("[IAP] Product details error: ", _message)
 
 func purchase(product_id: String) -> void:
-	if not is_connected:
+	if not billing_connected:
 		purchase_failed.emit(product_id, "Not connected to billing")
 		return
 	if product_id not in PRODUCTS:
@@ -156,5 +156,5 @@ func has_vip() -> bool:
 	return GameData.settings.get("vip_pass", false)
 
 func restore_purchases() -> void:
-	if billing_plugin and is_connected:
+	if billing_plugin and billing_connected:
 		billing_plugin.queryPurchases("inapp")
