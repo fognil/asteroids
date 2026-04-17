@@ -118,6 +118,16 @@ func end_game() -> void:
 	var bp_xp_earned := wave * 5 + int(score / 500.0)
 	add_bp_xp(bp_xp_earned)
 	
+	# Leaderboard entry
+	var lb: Array = settings.get("leaderboard", [])
+	var dt := Time.get_datetime_dict_from_system(true)
+	var date_str := str(dt["year"]) + "-" + str(dt["month"]).pad_zeros(2) + "-" + str(dt["day"]).pad_zeros(2)
+	lb.append({"score": score, "wave": wave, "ship": equipped_ship, "date": date_str})
+	lb.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["score"] > b["score"])
+	if lb.size() > 10:
+		lb.resize(10)
+	settings["leaderboard"] = lb
+	
 	SaveManager.save_game()
 
 func add_score(amount: int) -> void:

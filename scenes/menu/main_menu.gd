@@ -10,6 +10,8 @@ var daily_reward: Control = null
 var missions_screen: Control = null
 var shop_screen: Control = null
 var battle_pass_screen: Control = null
+var leaderboard_screen: Control = null
+var achievements_screen: Control = null
 
 func _ready() -> void:
 	_generate_stars()
@@ -50,6 +52,26 @@ func _ready() -> void:
 	battle_pass_screen.anchor_bottom = 1.0
 	battle_pass_screen.visible = false
 	add_child(battle_pass_screen)
+	
+	# Create leaderboard screen
+	leaderboard_screen = load("res://scenes/menu/leaderboard_screen.gd").new()
+	leaderboard_screen.anchors_preset = Control.PRESET_FULL_RECT
+	leaderboard_screen.anchor_right = 1.0
+	leaderboard_screen.anchor_bottom = 1.0
+	leaderboard_screen.visible = false
+	add_child(leaderboard_screen)
+	
+	# Create achievements screen
+	achievements_screen = load("res://scenes/menu/achievements_screen.gd").new()
+	achievements_screen.anchors_preset = Control.PRESET_FULL_RECT
+	achievements_screen.anchor_right = 1.0
+	achievements_screen.anchor_bottom = 1.0
+	achievements_screen.visible = false
+	add_child(achievements_screen)
+	
+	# Check achievements on menu load
+	if achievements_screen.has_method("check_achievements"):
+		achievements_screen.check_achievements()
 	
 	# Auto-show daily reward if unclaimed
 	if daily_reward.has_method("can_claim") and daily_reward.can_claim():
@@ -105,6 +127,22 @@ func _handle_touch(pos: Vector2) -> void:
 		_start_game()
 		return
 	
+	# Leaderboard button (below play, left)
+	var lb_rect := Rect2(vp.x / 2 - 140, vp.y * 0.68, 130, 35)
+	if lb_rect.has_point(pos):
+		_hide_subscreens()
+		leaderboard_screen.visible = not leaderboard_screen.visible
+		achievements_screen.visible = false
+		return
+	
+	# Achievements button (below play, right)
+	var ach_rect := Rect2(vp.x / 2 + 10, vp.y * 0.68, 130, 35)
+	if ach_rect.has_point(pos):
+		_hide_subscreens()
+		achievements_screen.visible = not achievements_screen.visible
+		leaderboard_screen.visible = false
+		return
+	
 	# Bottom nav tabs
 	var tab_y := vp.y - 60
 	if pos.y > tab_y:
@@ -120,6 +158,10 @@ func _hide_subscreens() -> void:
 		shop_screen.visible = false
 	if battle_pass_screen:
 		battle_pass_screen.visible = false
+	if leaderboard_screen:
+		leaderboard_screen.visible = false
+	if achievements_screen:
+		achievements_screen.visible = false
 
 func _start_game() -> void:
 	get_tree().change_scene_to_file("res://scenes/game/game.tscn")
@@ -219,6 +261,23 @@ func _draw_best_scores(vp: Vector2, font: Font) -> void:
 	var text := "Best Score: " + str(GameData.high_score) + "   |   Best Wave: " + str(GameData.best_wave)
 	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, 14)
 	draw_string(font, Vector2((vp.x - text_size.x) / 2, y), text, HORIZONTAL_ALIGNMENT_CENTER, -1, 14, Color(0.5, 0.5, 0.5, 0.7))
+	
+	# Leaderboard + Achievements buttons
+	var btn_y := vp.y * 0.68
+	var lb_x := vp.x / 2 - 140
+	var ach_x := vp.x / 2 + 10
+	var bw: float = 130.0
+	var bh: float = 35.0
+	
+	draw_rect(Rect2(lb_x, btn_y, bw, bh), Color(0.1, 0.08, 0, 0.4))
+	draw_rect(Rect2(lb_x, btn_y, bw, bh), Color(1, 0.85, 0.2, 0.3), false, 1.0)
+	var lb_ts := font.get_string_size("🏆 Leaderboard", HORIZONTAL_ALIGNMENT_CENTER, -1, 12)
+	draw_string(font, Vector2(lb_x + (bw - lb_ts.x) / 2, btn_y + 23), "🏆 Leaderboard", HORIZONTAL_ALIGNMENT_CENTER, -1, 12, Color(1, 0.85, 0.2, 0.7))
+	
+	draw_rect(Rect2(ach_x, btn_y, bw, bh), Color(0.08, 0, 0.1, 0.4))
+	draw_rect(Rect2(ach_x, btn_y, bw, bh), Color(0.6, 0.3, 1, 0.3), false, 1.0)
+	var ach_ts := font.get_string_size("🎖️ Achievements", HORIZONTAL_ALIGNMENT_CENTER, -1, 12)
+	draw_string(font, Vector2(ach_x + (bw - ach_ts.x) / 2, btn_y + 23), "🎖️ Achievements", HORIZONTAL_ALIGNMENT_CENTER, -1, 12, Color(0.6, 0.3, 1, 0.7))
 
 func _draw_nav_bar(vp: Vector2, font: Font) -> void:
 	var bar_h: float = 60.0
