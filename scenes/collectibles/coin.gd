@@ -35,7 +35,7 @@ func _setup_collision() -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = 12.0
 	collision.shape = shape
-	add_child(collision)
+	add_child.call_deferred(collision)
 
 func setup_velocity(dir: Vector2) -> void:
 	coin_velocity = dir * randf_range(80, 180)

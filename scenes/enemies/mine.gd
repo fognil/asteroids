@@ -19,7 +19,7 @@ func _setup_collision() -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = mine_size
 	collision.shape = shape
-	add_child(collision)
+	add_child.call_deferred(collision)
 	collision_layer = 32
 	collision_mask = 2
 	area_entered.connect(_on_area_entered)

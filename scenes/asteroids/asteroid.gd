@@ -85,7 +85,7 @@ func _setup_collision() -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = asteroid_radius * 0.8
 	collision.shape = shape
-	add_child(collision)
+	add_child.call_deferred(collision)
 
 func _process(delta: float) -> void:
 	position += move_velocity * delta

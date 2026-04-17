@@ -23,7 +23,7 @@ func _setup_collision() -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = ufo_size * 0.7
 	collision.shape = shape
-	add_child(collision)
+	add_child.call_deferred(collision)
 	
 	collision_layer = 32  # Enemy layer
 	collision_mask = 2    # Bullet layer

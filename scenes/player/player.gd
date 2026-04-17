@@ -59,7 +59,7 @@ func _ready() -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = ship_size * 0.5
 	collision.shape = shape
-	add_child(collision)
+	add_child.call_deferred(collision)
 	
 	# Set collision layer so coins/powerups/enemy bullets can detect us
 	collision_layer = 1   # Player layer

@@ -15,7 +15,7 @@ func _setup_collision() -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = 4.0
 	collision.shape = shape
-	add_child(collision)
+	add_child.call_deferred(collision)
 	
 	collision_layer = 64   # Enemy bullet layer
 	collision_mask = 1     # Player layer
