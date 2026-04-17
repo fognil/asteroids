@@ -23,6 +23,7 @@ var boss_active: bool = false
 @onready var effects_container: Node2D = $"../GameWorld/Effects"
 @onready var enemies_container: Node2D = $"../GameWorld/Enemies"
 @onready var hud: CanvasLayer = $"../HUD"
+@onready var screen_flash: ColorRect = $"../ScreenFlash"
 
 func _ready() -> void:
 	asteroids_container.add_to_group("asteroids_container")
@@ -248,6 +249,10 @@ func _use_bomb() -> void:
 	if cam and cam.has_method("slow_motion"):
 		cam.slow_motion(0.2, 1.0)
 	
+	# Screen flash
+	if screen_flash and screen_flash.has_method("flash_bomb"):
+		screen_flash.flash_bomb()
+	
 	# Destroy all asteroids
 	for asteroid in asteroids_container.get_children():
 		if is_instance_valid(asteroid) and asteroid.has_method("take_damage"):
@@ -291,6 +296,8 @@ func _check_player_collisions() -> void:
 func _on_player_died() -> void:
 	current_state = State.GAME_OVER
 	GameData.end_game()
+	if screen_flash and screen_flash.has_method("flash_damage"):
+		screen_flash.flash_damage()
 	EventBus.game_over.emit(GameData.score, GameData.wave)
 
 func _on_asteroid_destroyed(pos: Vector2, size_name: String, _type: String) -> void:

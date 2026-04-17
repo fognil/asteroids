@@ -5,9 +5,16 @@ var ship_rotation: float = 0.0
 var play_glow: float = 0.0
 var selected_tab: int = -1  # -1 = hub, 0=hangar, 1=upgrade, 2=pass, 3=mission, 4=shop
 var star_bg: Array[Dictionary] = []
+var settings_screen: Control = null
 
 func _ready() -> void:
 	_generate_stars()
+	# Create settings screen
+	settings_screen = load("res://scenes/menu/settings_screen.gd").new()
+	settings_screen.anchors_preset = Control.PRESET_FULL_RECT
+	settings_screen.anchor_right = 1.0
+	settings_screen.anchor_bottom = 1.0
+	add_child(settings_screen)
 
 func _generate_stars() -> void:
 	for i in 100:
@@ -44,6 +51,12 @@ func _handle_touch(pos: Vector2) -> void:
 			_handle_upgrade_tap(pos, vp)
 		elif selected_tab == 0:  # Hangar
 			_handle_hangar_tap(pos, vp)
+		return
+	
+	# Settings gear (top-right)
+	if pos.x > vp.x - 60 and pos.y < 50:
+		if settings_screen and settings_screen.has_method("show_settings"):
+			settings_screen.show_settings()
 		return
 	
 	# PLAY button area (center)
@@ -98,6 +111,8 @@ func _draw_status_bar(vp: Vector2, font: Font) -> void:
 	draw_string(font, Vector2(180, 30), "💎 " + str(GameData.gems), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0.4, 0.8, 1))
 	# Level
 	draw_string(font, Vector2(300, 30), "🏆 Lv." + str(GameData.player_level), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.8, 0.8, 0.8))
+	# Settings gear
+	draw_string(font, Vector2(vp.x - 50, 30), "⚙️", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(0.6, 0.6, 0.6))
 
 func _draw_ship_preview(vp: Vector2, font: Font, time: float) -> void:
 	var center := Vector2(vp.x / 2, vp.y * 0.35)

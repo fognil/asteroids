@@ -1,14 +1,15 @@
-[gd_scene load_steps=11 format=3 uid="uid://game001"]
+[gd_scene load_steps=12 format=3 uid="uid://game001"]
 
 [ext_resource type="Script" path="res://scenes/game/game_manager.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
 [ext_resource type="Script" path="res://scenes/ui/hud.gd" id="3"]
-[ext_resource type="Script" path="res://scenes/game/star_background.gd" id="4"]
+[ext_resource type="Script" path="res://scenes/effects/starfield_bg.gd" id="4"]
 [ext_resource type="Script" path="res://scenes/ui/components/virtual_joystick.gd" id="5"]
 [ext_resource type="Script" path="res://scenes/ui/components/fire_button.gd" id="6"]
 [ext_resource type="Script" path="res://scenes/ui/components/bomb_button.gd" id="7"]
 [ext_resource type="Script" path="res://scenes/game/camera_shake.gd" id="8"]
 [ext_resource type="Script" path="res://scenes/ui/hud_draw.gd" id="9"]
+[ext_resource type="Script" path="res://scenes/effects/screen_effects.gd" id="10"]
 
 [sub_resource type="Environment" id="Environment_001"]
 background_mode = 3
@@ -139,3 +140,11 @@ script = ExtResource("6")
 
 [node name="BombButton" type="Control" parent="TouchControls"]
 script = ExtResource("7")
+
+[node name="ScreenFlash" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+script = ExtResource("10")
