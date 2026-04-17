@@ -306,8 +306,10 @@ func _draw_nav_bar(vp: Vector2, font: Font) -> void:
 		func(p: Vector2, c: Color): NeonIcons.draw_cart(self, p, 7.0, c),
 	]
 	
+	var tab_w := vp.x / 5.0
+	
 	for i in tab_names.size():
-		var x := i * tab_w
+		var x := float(i) * tab_w
 		var tab_color := Color(0.5, 0.5, 0.5, 0.6)
 		if i == selected_tab:
 			tab_color = Color(0, 1, 1, 0.9)
