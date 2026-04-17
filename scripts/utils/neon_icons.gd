@@ -238,3 +238,26 @@ static func draw_heart(canvas: CanvasItem, pos: Vector2, size: float, color: Col
 		canvas.draw_polyline(pts, color, 1.5, true)
 	else:
 		canvas.draw_polyline(pts, Color(color, 0.3), 1.0, true)
+
+static func draw_shield(canvas: CanvasItem, pos: Vector2, size: float, color: Color = Color(0, 1, 1)) -> void:
+	## Shield / badge shape with inner star
+	var s := size
+	# Shield outline (pentagon-like)
+	var shield := PackedVector2Array([
+		pos + Vector2(0, -s),
+		pos + Vector2(s * 0.85, -s * 0.5),
+		pos + Vector2(s * 0.7, s * 0.35),
+		pos + Vector2(0, s * 0.9),
+		pos + Vector2(-s * 0.7, s * 0.35),
+		pos + Vector2(-s * 0.85, -s * 0.5),
+		pos + Vector2(0, -s),
+	])
+	canvas.draw_polyline(shield, color, 1.8, true)
+	# Inner star
+	var star_s := s * 0.35
+	var star_pts := PackedVector2Array()
+	for i in 11:
+		var angle := float(i) / 10.0 * TAU - PI / 2
+		var r := star_s if i % 2 == 0 else star_s * 0.4
+		star_pts.append(pos + Vector2(cos(angle) * r, sin(angle) * r - s * 0.05))
+	canvas.draw_polyline(star_pts, Color(color, 0.6), 1.2, true)

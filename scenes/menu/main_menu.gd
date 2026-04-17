@@ -34,6 +34,7 @@ func _ready() -> void:
 	missions_screen.anchors_preset = Control.PRESET_FULL_RECT
 	missions_screen.anchor_right = 1.0
 	missions_screen.anchor_bottom = 1.0
+	missions_screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	missions_screen.visible = false
 	add_child(missions_screen)
 	
@@ -42,6 +43,7 @@ func _ready() -> void:
 	shop_screen.anchors_preset = Control.PRESET_FULL_RECT
 	shop_screen.anchor_right = 1.0
 	shop_screen.anchor_bottom = 1.0
+	shop_screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	shop_screen.visible = false
 	add_child(shop_screen)
 	
@@ -50,6 +52,7 @@ func _ready() -> void:
 	battle_pass_screen.anchors_preset = Control.PRESET_FULL_RECT
 	battle_pass_screen.anchor_right = 1.0
 	battle_pass_screen.anchor_bottom = 1.0
+	battle_pass_screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	battle_pass_screen.visible = false
 	add_child(battle_pass_screen)
 	
@@ -58,6 +61,7 @@ func _ready() -> void:
 	leaderboard_screen.anchors_preset = Control.PRESET_FULL_RECT
 	leaderboard_screen.anchor_right = 1.0
 	leaderboard_screen.anchor_bottom = 1.0
+	leaderboard_screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	leaderboard_screen.visible = false
 	add_child(leaderboard_screen)
 	
@@ -66,6 +70,7 @@ func _ready() -> void:
 	achievements_screen.anchors_preset = Control.PRESET_FULL_RECT
 	achievements_screen.anchor_right = 1.0
 	achievements_screen.anchor_bottom = 1.0
+	achievements_screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	achievements_screen.visible = false
 	add_child(achievements_screen)
 	
@@ -102,44 +107,54 @@ func _input(event: InputEvent) -> void:
 
 func _handle_touch(pos: Vector2) -> void:
 	var vp := get_viewport_rect().size
+	var sc := vp.y / 1080.0
 	
-	if selected_tab >= 0:
-		# Check back button (scaled)
-		var sc := vp.y / 1080.0
-		if pos.x < 160 * sc and pos.y < 80 * sc:
+	# === Always check nav bar first (works from any screen) ===
+	var margin := 16.0 * sc
+	var bar_h := 130.0 * sc
+	var tab_y := vp.y - bar_h
+	if pos.y > tab_y and pos.x > margin and pos.x < vp.x - margin:
+		var bw := vp.x - margin * 2
+		var tab_width := bw / 5.0
+		var tab_idx := int((pos.x - margin) / tab_width)
+		if tab_idx >= 0 and tab_idx < 5:
 			_hide_subscreens()
-			selected_tab = -1
-			return
-		
-		# Handle sub-screen taps
+			if tab_idx == selected_tab:
+				# Tap active tab again → return to hub
+				selected_tab = -1
+			else:
+				selected_tab = tab_idx
+		return
+	
+	# === Sub-screen content taps ===
+	if selected_tab >= 0:
 		if selected_tab == 1:  # Upgrades
 			_handle_upgrade_tap(pos, vp)
 		elif selected_tab == 0:  # Hangar
 			_handle_hangar_tap(pos, vp)
 		return
 	
-	var sc := vp.y / 1080.0
-	
-	# Settings gear (top-right)
-	if pos.x > vp.x - 80 * sc and pos.y < 80 * sc:
+	# === Hub taps ===
+	# Settings gear (top-right, inside 90px bar)
+	if pos.x > vp.x - 80 * sc and pos.y < 90 * sc:
 		if settings_screen and settings_screen.has_method("show_settings"):
 			settings_screen.show_settings()
 		return
 	
 	# PLAY button area
-	var play_w := 450.0 * sc
-	var play_h := 90.0 * sc
-	var play_rect := Rect2((vp.x - play_w) / 2, vp.y * 0.60, play_w, play_h)
+	var play_w := 480.0 * sc
+	var play_h := 100.0 * sc
+	var play_rect := Rect2((vp.x - play_w) / 2, vp.y * 0.59, play_w, play_h)
 	if play_rect.has_point(pos):
 		_start_game()
 		return
 	
 	# Leaderboard button
-	var btn_w := 280.0 * sc
-	var btn_h := 70.0 * sc
-	var gap := 20.0 * sc
+	var btn_w := 300.0 * sc
+	var btn_h := 75.0 * sc
+	var gap := 24.0 * sc
 	var total_w := btn_w * 2 + gap
-	var btn_y := vp.y * 0.76
+	var btn_y := vp.y * 0.75
 	var lb_x := (vp.x - total_w) / 2
 	var lb_rect := Rect2(lb_x, btn_y, btn_w, btn_h)
 	if lb_rect.has_point(pos):
@@ -160,14 +175,6 @@ func _handle_touch(pos: Vector2) -> void:
 		if leaderboard_screen:
 			leaderboard_screen.visible = false
 		return
-	
-	# Bottom nav tabs
-	var tab_y := vp.y - 120 * sc
-	if pos.y > tab_y:
-		var tab_width := vp.x / 5.0
-		var tab_idx := int(pos.x / tab_width)
-		if tab_idx >= 0 and tab_idx < 5:
-			selected_tab = tab_idx
 
 func _hide_subscreens() -> void:
 	if missions_screen:
@@ -217,40 +224,113 @@ func _draw() -> void:
 
 func _draw_status_bar(vp: Vector2, font: Font) -> void:
 	var sc := vp.y / 1080.0
-	var bar_h := 80.0 * sc
+	var bar_h := 90.0 * sc
 	
-	# Frosted glass top bar
-	draw_rect(Rect2(0, 0, vp.x, bar_h), Color(0.02, 0.02, 0.06, 0.85))
-	draw_line(Vector2(0, bar_h), Vector2(vp.x, bar_h), Color(0.2, 0.4, 0.5, 0.3), 2.0 * sc)
+	# === Dark frosted panel background ===
+	draw_rect(Rect2(0, 0, vp.x, bar_h), Color(0.015, 0.02, 0.045, 0.92))
+	# Top edge accent line (gradient gold -> cyan)
+	draw_line(Vector2(0, 0), Vector2(vp.x * 0.3, 0), Color(1, 0.75, 0.1, 0.5), 2.0 * sc)
+	draw_line(Vector2(vp.x * 0.3, 0), Vector2(vp.x * 0.7, 0), Color(0, 1, 1, 0.15), 1.0 * sc)
+	draw_line(Vector2(vp.x * 0.7, 0), Vector2(vp.x, 0), Color(0, 1, 1, 0.5), 2.0 * sc)
+	# Bottom edge
+	draw_line(Vector2(0, bar_h), Vector2(vp.x, bar_h), Color(0, 1, 1, 0.15), 1.5 * sc)
 	
 	var cy := bar_h / 2.0
-	var fs := int(32 * sc)
-	var badge_r := 22.0 * sc
-	var icon_s := 12.0 * sc
+	var fs := int(36 * sc)
+	var badge_r := 26.0 * sc
+	var icon_s := 14.0 * sc
 	
-	# Coins — gold circle badge + amount
-	var coin_x := 30.0 * sc
-	draw_circle(Vector2(coin_x + badge_r, cy), badge_r, Color(0.3, 0.2, 0, 0.5))
-	draw_arc(Vector2(coin_x + badge_r, cy), badge_r, 0, TAU, 16, Color(1, 0.85, 0.2, 0.5), 2.0 * sc, true)
-	NeonIcons.draw_coin(self, Vector2(coin_x + badge_r, cy), icon_s, Color(1, 0.85, 0.2))
-	draw_string(font, Vector2(coin_x + badge_r * 2 + 12 * sc, cy + fs * 0.35), str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1, 0.9))
+	# === LEFT PANEL: Coins + Gems bordered area ===
+	var left_panel_w := 420.0 * sc
+	var left_panel_h := 56.0 * sc
+	var left_panel_y := (bar_h - left_panel_h) / 2
+	var left_panel_x := 20.0 * sc
+	# Panel border
+	var lp := PackedVector2Array([
+		Vector2(left_panel_x, left_panel_y),
+		Vector2(left_panel_x + left_panel_w, left_panel_y),
+		Vector2(left_panel_x + left_panel_w, left_panel_y + left_panel_h),
+		Vector2(left_panel_x, left_panel_y + left_panel_h),
+		Vector2(left_panel_x, left_panel_y)
+	])
+	draw_rect(Rect2(left_panel_x, left_panel_y, left_panel_w, left_panel_h), Color(0.03, 0.04, 0.08, 0.7))
+	draw_polyline(lp, Color(0, 1, 1, 0.2), 1.5 * sc)
 	
-	# Gems — diamond badge + amount
-	var gem_x := 280.0 * sc
-	draw_circle(Vector2(gem_x + badge_r, cy), badge_r, Color(0, 0.1, 0.2, 0.5))
-	draw_arc(Vector2(gem_x + badge_r, cy), badge_r, 0, TAU, 16, Color(0.4, 0.8, 1, 0.5), 2.0 * sc, true)
-	NeonIcons.draw_gem(self, Vector2(gem_x + badge_r, cy), icon_s, Color(0.4, 0.8, 1))
-	draw_string(font, Vector2(gem_x + badge_r * 2 + 12 * sc, cy + fs * 0.35), str(GameData.gems), HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1, 0.9))
+	# -- Coin badge (gold circle with inner details) --
+	var coin_cx := left_panel_x + 40 * sc
+	# Outer ring glow
+	for g in 3:
+		draw_arc(Vector2(coin_cx, cy), badge_r + float(g) * 3 * sc, 0, TAU, 24, Color(1, 0.75, 0.1, 0.04 - float(g) * 0.01), 3.0 * sc, true)
+	# Filled gold circle
+	draw_circle(Vector2(coin_cx, cy), badge_r, Color(0.35, 0.25, 0.02, 0.8))
+	draw_arc(Vector2(coin_cx, cy), badge_r, 0, TAU, 24, Color(1, 0.8, 0.15, 0.9), 2.5 * sc, true)
+	# Inner coin detail
+	draw_arc(Vector2(coin_cx, cy), badge_r * 0.65, 0, TAU, 16, Color(1, 0.85, 0.2, 0.5), 1.5 * sc, true)
+	NeonIcons.draw_coin(self, Vector2(coin_cx, cy), icon_s, Color(1, 0.9, 0.3))
+	# Coin amount with glow
+	var coin_str := _format_number(GameData.total_coins)
+	draw_string(font, Vector2(coin_cx + badge_r + 14 * sc, cy + fs * 0.35), coin_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 0.95, 0.5, 0.15))
+	draw_string(font, Vector2(coin_cx + badge_r + 14 * sc, cy + fs * 0.35), coin_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 0.95, 0.7, 0.95))
 	
-	# Level — right side with shield badge
+	# -- Gem badge (purple/blue diamond) --
+	var gem_cx := left_panel_x + 245 * sc
+	# Glow rings
+	for g in 3:
+		draw_arc(Vector2(gem_cx, cy), badge_r + float(g) * 3 * sc, 0, TAU, 24, Color(0.5, 0.3, 1, 0.04 - float(g) * 0.01), 3.0 * sc, true)
+	# Filled purple circle
+	draw_circle(Vector2(gem_cx, cy), badge_r, Color(0.12, 0.05, 0.25, 0.8))
+	draw_arc(Vector2(gem_cx, cy), badge_r, 0, TAU, 24, Color(0.55, 0.35, 1, 0.9), 2.5 * sc, true)
+	# Inner diamond shape
+	var d := badge_r * 0.5
+	var diamond := PackedVector2Array([
+		Vector2(gem_cx, cy - d), Vector2(gem_cx + d * 0.7, cy),
+		Vector2(gem_cx, cy + d), Vector2(gem_cx - d * 0.7, cy),
+		Vector2(gem_cx, cy - d)
+	])
+	draw_polyline(diamond, Color(0.6, 0.4, 1, 0.6), 1.5 * sc)
+	NeonIcons.draw_gem(self, Vector2(gem_cx, cy), icon_s, Color(0.6, 0.5, 1))
+	# Gem amount with glow
+	var gem_str := str(GameData.gems)
+	draw_string(font, Vector2(gem_cx + badge_r + 14 * sc, cy + fs * 0.35), gem_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.6, 0.4, 1, 0.15))
+	draw_string(font, Vector2(gem_cx + badge_r + 14 * sc, cy + fs * 0.35), gem_str, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.7, 0.55, 1, 0.95))
+	
+	# === RIGHT SIDE: Level badge with shield ===
 	var level_text := "LEVEL " + str(GameData.player_level)
 	var level_size := font.get_string_size(level_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	var lx := vp.x - level_size.x - 90 * sc
-	NeonIcons.draw_medal(self, Vector2(lx, cy), 16.0 * sc, Color(0, 1, 1, 0.8))
-	draw_string(font, Vector2(lx + 28 * sc, cy + fs * 0.35), level_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 1, 1, 0.9))
+	var right_panel_w := level_size.x + 90 * sc
+	var right_panel_x := vp.x - right_panel_w - 20 * sc
+	var right_panel_y := (bar_h - left_panel_h) / 2
+	# Panel border
+	var rp := PackedVector2Array([
+		Vector2(right_panel_x, right_panel_y),
+		Vector2(right_panel_x + right_panel_w, right_panel_y),
+		Vector2(right_panel_x + right_panel_w, right_panel_y + left_panel_h),
+		Vector2(right_panel_x, right_panel_y + left_panel_h),
+		Vector2(right_panel_x, right_panel_y)
+	])
+	draw_rect(Rect2(right_panel_x, right_panel_y, right_panel_w, left_panel_h), Color(0.03, 0.04, 0.08, 0.7))
+	draw_polyline(rp, Color(0, 1, 1, 0.2), 1.5 * sc)
+	# Shield icon
+	var shield_cx := right_panel_x + 35 * sc
+	NeonIcons.draw_shield(self, Vector2(shield_cx, cy), 18.0 * sc, Color(0, 1, 1, 0.8))
+	# Level text with glow
+	var lt_x := shield_cx + 32 * sc
+	draw_string(font, Vector2(lt_x, cy + fs * 0.35), level_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 1, 1, 0.12))
+	draw_string(font, Vector2(lt_x, cy + fs * 0.35), level_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 1, 1, 0.95))
 	
-	# Settings gear far right
-	NeonIcons.draw_gear(self, Vector2(vp.x - 45 * sc, cy), 18.0 * sc, Color(0.5, 0.5, 0.6, 0.6))
+	# Settings gear (separate, far right) — only if there's space
+	var gear_x := vp.x - 50 * sc
+	if gear_x > right_panel_x + right_panel_w + 20 * sc:
+		NeonIcons.draw_gear(self, Vector2(gear_x, cy), 20.0 * sc, Color(0, 1, 1, 0.5))
+
+func _format_number(n: int) -> String:
+	if n >= 1000000:
+		@warning_ignore("integer_division")
+		return str(n / 1000000) + "." + str((n % 1000000) / 100000) + "M"
+	elif n >= 1000:
+		@warning_ignore("integer_division")
+		return str(n / 1000) + "," + str(n % 1000).pad_zeros(3)
+	return str(n)
 
 func _draw_hex_grid(vp: Vector2, time: float) -> void:
 	## Subtle hexagonal grid background
@@ -387,102 +467,196 @@ func _draw_ship_preview(vp: Vector2, font: Font, time: float) -> void:
 
 func _draw_play_button(vp: Vector2, font: Font, time: float) -> void:
 	var sc := vp.y / 1080.0
-	var btn_w := 450.0 * sc
-	var btn_h := 90.0 * sc
+	var btn_w := 480.0 * sc
+	var btn_h := 100.0 * sc
 	var btn_x := (vp.x - btn_w) / 2
-	var btn_y := vp.y * 0.60
+	var btn_y := vp.y * 0.59
 	var r := btn_h / 2.0
 	var pulse := 0.5 + 0.5 * sin(time * 2.5)
 	
-	# === Pill-shaped button ===
+	# === Premium pill-shaped button ===
 	var pill := PackedVector2Array()
-	for i in 13:
-		var angle := PI / 2 + float(i) / 12.0 * PI
+	for i in 17:
+		var angle := PI / 2 + float(i) / 16.0 * PI
 		pill.append(Vector2(btn_x + r + cos(angle) * r, btn_y + r + sin(angle) * r))
 	pill.append(Vector2(btn_x + btn_w - r, btn_y))
-	for i in 13:
-		var angle := -PI / 2 + float(i) / 12.0 * PI
+	for i in 17:
+		var angle := -PI / 2 + float(i) / 16.0 * PI
 		pill.append(Vector2(btn_x + btn_w - r + cos(angle) * r, btn_y + r + sin(angle) * r))
 	pill.append(Vector2(btn_x + r, btn_y + btn_h))
 	pill.append(pill[0])
 	
-	# Glow layer
-	draw_polyline(pill, Color(0, 1, 1, 0.05 + pulse * 0.05), 20.0 * sc, true)
-	# Fill
-	draw_rect(Rect2(btn_x + r, btn_y, btn_w - r * 2, btn_h), Color(0, 0.15, 0.2, 0.5))
-	draw_circle(Vector2(btn_x + r, btn_y + r), r, Color(0, 0.15, 0.2, 0.5))
-	draw_circle(Vector2(btn_x + btn_w - r, btn_y + r), r, Color(0, 0.15, 0.2, 0.5))
-	# Border
-	draw_polyline(pill, Color(0, 1, 1, 0.5 + pulse * 0.3), 3.0 * sc, true)
-	draw_polyline(pill, Color(0, 1, 1, 0.12 + pulse * 0.08), 6.0 * sc, true)
+	# Layer 1: Outer glow (wide, soft)
+	draw_polyline(pill, Color(0, 1, 1, 0.04 + pulse * 0.04), 24.0 * sc, true)
+	# Layer 2: Mid glow
+	draw_polyline(pill, Color(0, 1, 1, 0.08 + pulse * 0.06), 12.0 * sc, true)
 	
-	# Underline
-	draw_line(Vector2(btn_x + 50*sc, btn_y + btn_h + 6*sc), Vector2(btn_x + btn_w - 50*sc, btn_y + btn_h + 6*sc), Color(0, 1, 1, 0.12 + pulse * 0.08), 4.0 * sc)
+	# Fill — dark tinted glass
+	draw_rect(Rect2(btn_x + r, btn_y + 2*sc, btn_w - r * 2, btn_h - 4*sc), Color(0, 0.12, 0.18, 0.65))
+	draw_circle(Vector2(btn_x + r, btn_y + r), r - 2*sc, Color(0, 0.12, 0.18, 0.65))
+	draw_circle(Vector2(btn_x + btn_w - r, btn_y + r), r - 2*sc, Color(0, 0.12, 0.18, 0.65))
 	
-	# Play icon + text
-	var play_fs := int(48 * sc)
+	# Inner highlight (top edge shine)
+	var shine_pts := PackedVector2Array()
+	for i in 17:
+		var angle := PI / 2 + float(i) / 16.0 * PI
+		shine_pts.append(Vector2(btn_x + r + cos(angle) * (r - 4*sc), btn_y + r + sin(angle) * (r - 4*sc)))
+	shine_pts.append(Vector2(btn_x + btn_w - r, btn_y + 4*sc))
+	for i in 5:
+		var angle := -PI / 2 + float(i) / 16.0 * PI
+		shine_pts.append(Vector2(btn_x + btn_w - r + cos(angle) * (r - 4*sc), btn_y + r + sin(angle) * (r - 4*sc)))
+	draw_polyline(shine_pts, Color(0.4, 0.9, 1, 0.12 + pulse * 0.06), 1.5 * sc, true)
+	
+	# Main border (thick, glowing)
+	draw_polyline(pill, Color(0, 0.85, 0.9, 0.55 + pulse * 0.25), 3.5 * sc, true)
+	# Inner border (thin)
+	var inner_pill := PackedVector2Array()
+	var ir := r - 5 * sc
+	for i in 17:
+		var angle := PI / 2 + float(i) / 16.0 * PI
+		inner_pill.append(Vector2(btn_x + r + cos(angle) * ir, btn_y + r + sin(angle) * ir))
+	inner_pill.append(Vector2(btn_x + btn_w - r, btn_y + (r - ir)))
+	for i in 17:
+		var angle := -PI / 2 + float(i) / 16.0 * PI
+		inner_pill.append(Vector2(btn_x + btn_w - r + cos(angle) * ir, btn_y + r + sin(angle) * ir))
+	inner_pill.append(Vector2(btn_x + r, btn_y + r + ir))
+	inner_pill.append(inner_pill[0])
+	draw_polyline(inner_pill, Color(0, 1, 1, 0.15), 1.5 * sc, true)
+	
+	# Bottom underline glow
+	draw_line(Vector2(btn_x + 40*sc, btn_y + btn_h + 8*sc), Vector2(btn_x + btn_w - 40*sc, btn_y + btn_h + 8*sc), Color(0, 1, 1, 0.08 + pulse * 0.06), 5.0 * sc)
+	
+	# Play icon + text (larger, bolder)
+	var play_fs := int(54 * sc)
 	var play_text := "PLAY"
 	var text_size := font.get_string_size(play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, play_fs)
-	var tx := (vp.x - text_size.x) / 2
-	NeonIcons.draw_play(self, Vector2(tx - 40*sc, btn_y + btn_h / 2), 20.0 * sc, Color(0, 1, 1))
-	draw_string(font, Vector2(tx, btn_y + btn_h / 2 + play_fs * 0.35), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, play_fs, Color(0, 1, 1, 0.4))
-	draw_string(font, Vector2(tx, btn_y + btn_h / 2 + play_fs * 0.35), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, play_fs, Color(0, 1, 1))
+	var tx := (vp.x - text_size.x) / 2 + 15 * sc
+	# Play triangle icon
+	NeonIcons.draw_play(self, Vector2(tx - 50*sc, btn_y + btn_h / 2), 24.0 * sc, Color(0, 1, 1, 0.9))
+	# Text glow layer
+	draw_string(font, Vector2(tx, btn_y + btn_h / 2 + play_fs * 0.35), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, play_fs, Color(0, 1, 1, 0.3))
+	# Main text
+	draw_string(font, Vector2(tx, btn_y + btn_h / 2 + play_fs * 0.35), play_text, HORIZONTAL_ALIGNMENT_CENTER, -1, play_fs, Color(0.85, 1, 1))
 
 func _draw_best_scores(vp: Vector2, font: Font) -> void:
 	var sc := vp.y / 1080.0
-	# === Glass panel buttons: Leaderboard + Achievements ===
-	var btn_w := 280.0 * sc
-	var btn_h := 70.0 * sc
-	var gap := 20.0 * sc
+	# === Premium glass panel buttons ===
+	var btn_w := 300.0 * sc
+	var btn_h := 75.0 * sc
+	var gap := 24.0 * sc
 	var total_w := btn_w * 2 + gap
-	var btn_y := vp.y * 0.76
+	var btn_y := vp.y * 0.75
 	var lb_x := (vp.x - total_w) / 2
 	var ach_x := lb_x + btn_w + gap
-	var fs := int(24 * sc)
-	var icon_s := 16.0 * sc
+	var fs := int(26 * sc)
+	var icon_s := 18.0 * sc
 	
-	# -- Leaderboard button (gold accent) --
-	draw_rect(Rect2(lb_x, btn_y, btn_w, btn_h), Color(0.12, 0.1, 0.03, 0.5))
-	draw_rect(Rect2(lb_x, btn_y, btn_w, btn_h), Color(1, 0.85, 0.2, 0.35), false, 2.0 * sc)
-	draw_rect(Rect2(lb_x, btn_y, 4*sc, btn_h), Color(1, 0.85, 0.2, 0.6))
-	NeonIcons.draw_trophy(self, Vector2(lb_x + 35*sc, btn_y + btn_h / 2), icon_s, Color(1, 0.85, 0.2, 0.8))
-	draw_string(font, Vector2(lb_x + 60*sc, btn_y + btn_h/2 + fs*0.35), "Leaderboard", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 0.85, 0.2, 0.85))
+	# -- Leaderboard button (gold accent, glass panel) --
+	# Background
+	draw_rect(Rect2(lb_x, btn_y, btn_w, btn_h), Color(0.1, 0.08, 0.02, 0.5))
+	# Border with glow
+	var lb_border := PackedVector2Array([
+		Vector2(lb_x, btn_y), Vector2(lb_x + btn_w, btn_y),
+		Vector2(lb_x + btn_w, btn_y + btn_h), Vector2(lb_x, btn_y + btn_h), Vector2(lb_x, btn_y)
+	])
+	draw_polyline(lb_border, Color(1, 0.8, 0.15, 0.12), 5.0 * sc)
+	draw_polyline(lb_border, Color(1, 0.8, 0.15, 0.45), 2.0 * sc)
+	# Left accent bar
+	draw_rect(Rect2(lb_x, btn_y, 4*sc, btn_h), Color(1, 0.8, 0.15, 0.7))
+	# Trophy icon (larger)
+	NeonIcons.draw_trophy(self, Vector2(lb_x + 40*sc, btn_y + btn_h / 2), icon_s, Color(1, 0.85, 0.2, 0.9))
+	# Text with glow
+	draw_string(font, Vector2(lb_x + 68*sc, btn_y + btn_h/2 + fs*0.35), "Leaderboard", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 0.85, 0.2, 0.15))
+	draw_string(font, Vector2(lb_x + 68*sc, btn_y + btn_h/2 + fs*0.35), "Leaderboard", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 0.9, 0.5, 0.9))
 	
-	# -- Achievements button (purple accent) --
-	draw_rect(Rect2(ach_x, btn_y, btn_w, btn_h), Color(0.08, 0.03, 0.12, 0.5))
-	draw_rect(Rect2(ach_x, btn_y, btn_w, btn_h), Color(0.6, 0.3, 1, 0.35), false, 2.0 * sc)
-	draw_rect(Rect2(ach_x, btn_y, 4*sc, btn_h), Color(0.6, 0.3, 1, 0.6))
-	NeonIcons.draw_medal(self, Vector2(ach_x + 35*sc, btn_y + btn_h / 2), icon_s, Color(0.6, 0.3, 1, 0.8))
-	draw_string(font, Vector2(ach_x + 60*sc, btn_y + btn_h/2 + fs*0.35), "Achievements", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.6, 0.3, 1, 0.85))
+	# -- Achievements button (purple accent, glass panel) --
+	draw_rect(Rect2(ach_x, btn_y, btn_w, btn_h), Color(0.06, 0.02, 0.1, 0.5))
+	var ach_border := PackedVector2Array([
+		Vector2(ach_x, btn_y), Vector2(ach_x + btn_w, btn_y),
+		Vector2(ach_x + btn_w, btn_y + btn_h), Vector2(ach_x, btn_y + btn_h), Vector2(ach_x, btn_y)
+	])
+	draw_polyline(ach_border, Color(0.55, 0.3, 1, 0.12), 5.0 * sc)
+	draw_polyline(ach_border, Color(0.55, 0.3, 1, 0.45), 2.0 * sc)
+	draw_rect(Rect2(ach_x, btn_y, 4*sc, btn_h), Color(0.55, 0.3, 1, 0.7))
+	NeonIcons.draw_medal(self, Vector2(ach_x + 40*sc, btn_y + btn_h / 2), icon_s, Color(0.6, 0.35, 1, 0.9))
+	draw_string(font, Vector2(ach_x + 68*sc, btn_y + btn_h/2 + fs*0.35), "Achievements", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.55, 0.3, 1, 0.15))
+	draw_string(font, Vector2(ach_x + 68*sc, btn_y + btn_h/2 + fs*0.35), "Achievements", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.7, 0.5, 1, 0.9))
 
 func _draw_nav_bar(vp: Vector2, font: Font) -> void:
 	var sc := vp.y / 1080.0
-	var bar_h := 120.0 * sc
+	var bar_h := 130.0 * sc
 	var bar_y := vp.y - bar_h
+	var margin := 16.0 * sc
 	
-	# Frosted glass background
-	draw_rect(Rect2(0, bar_y, vp.x, bar_h), Color(0.03, 0.03, 0.06, 0.88))
-	draw_line(Vector2(0, bar_y), Vector2(vp.x, bar_y), Color(0.2, 0.3, 0.4, 0.4), 2.0 * sc)
+	# === Frosted glass panel with border ===
+	# Background fill
+	draw_rect(Rect2(margin, bar_y, vp.x - margin * 2, bar_h - margin / 2), Color(0.02, 0.025, 0.06, 0.9))
+	
+	# Panel border (rounded feel with corner accents)
+	var bx := margin
+	var by := bar_y
+	var bw := vp.x - margin * 2
+	var bh := bar_h - margin / 2
+	var nav_border := PackedVector2Array([
+		Vector2(bx, by), Vector2(bx + bw, by),
+		Vector2(bx + bw, by + bh), Vector2(bx, by + bh), Vector2(bx, by)
+	])
+	# Outer glow
+	draw_polyline(nav_border, Color(0, 1, 1, 0.08), 6.0 * sc)
+	# Main border
+	draw_polyline(nav_border, Color(0, 1, 1, 0.35), 2.0 * sc)
+	
+	# Top accent line (gold gradient for premium feel)
+	var accent_w := bw * 0.6
+	var accent_x := bx + (bw - accent_w) / 2
+	draw_line(Vector2(accent_x, by), Vector2(accent_x + accent_w * 0.3, by), Color(1, 0.75, 0.1, 0.5), 2.5 * sc)
+	draw_line(Vector2(accent_x + accent_w * 0.3, by), Vector2(accent_x + accent_w * 0.7, by), Color(1, 0.75, 0.1, 0.2), 2.0 * sc)
+	draw_line(Vector2(accent_x + accent_w * 0.7, by), Vector2(accent_x + accent_w, by), Color(1, 0.75, 0.1, 0.5), 2.5 * sc)
+	
+	# Corner accent dots
+	for corner in [Vector2(bx + 4*sc, by + 4*sc), Vector2(bx + bw - 4*sc, by + 4*sc),
+				   Vector2(bx + 4*sc, by + bh - 4*sc), Vector2(bx + bw - 4*sc, by + bh - 4*sc)]:
+		draw_circle(corner, 2.0 * sc, Color(0, 1, 1, 0.4))
 	
 	var tab_names := ["Hangar", "Upgrade", "Pass", "Mission", "Shop"]
-	var tab_w := vp.x / 5.0
+	var tab_w := bw / 5.0
 	
 	for i in tab_names.size():
-		var x := float(i) * tab_w
+		var x := bx + float(i) * tab_w
 		var cx := x + tab_w / 2.0
 		var is_active := (i == selected_tab)
-		var tab_color := Color(0.4, 0.4, 0.5, 0.5)
-		var icon_s := 18.0 * sc
-		var label_fs := int(20 * sc)
+		var tab_color := Color(0.45, 0.5, 0.6, 0.55)
+		var icon_s := 22.0 * sc
+		var label_fs := int(22 * sc)
 		
 		if is_active:
-			tab_color = Color(0, 1, 1, 0.95)
-			draw_rect(Rect2(x + 2, bar_y, tab_w - 4, bar_h), Color(0, 0.2, 0.3, 0.15))
-			draw_line(Vector2(cx - 35*sc, bar_y + bar_h - 4*sc), Vector2(cx + 35*sc, bar_y + bar_h - 4*sc), Color(0, 1, 1, 0.7), 3.0 * sc)
-			icon_s = 22.0 * sc
+			tab_color = Color(0, 1, 1, 1.0)
+			icon_s = 26.0 * sc
+			
+			# === Active tab highlight box ===
+			var tab_pad := 6.0 * sc
+			var tab_box_x := x + tab_pad
+			var tab_box_y := by + tab_pad
+			var tab_box_w := tab_w - tab_pad * 2
+			var tab_box_h := bh - tab_pad * 2
+			# Highlight fill
+			draw_rect(Rect2(tab_box_x, tab_box_y, tab_box_w, tab_box_h), Color(0, 0.15, 0.25, 0.3))
+			# Highlight border
+			var tb := PackedVector2Array([
+				Vector2(tab_box_x, tab_box_y), Vector2(tab_box_x + tab_box_w, tab_box_y),
+				Vector2(tab_box_x + tab_box_w, tab_box_y + tab_box_h),
+				Vector2(tab_box_x, tab_box_y + tab_box_h), Vector2(tab_box_x, tab_box_y)
+			])
+			draw_polyline(tb, Color(0, 1, 1, 0.45), 1.5 * sc)
+			# Bottom glow line
+			draw_line(Vector2(tab_box_x + 15*sc, tab_box_y + tab_box_h), Vector2(tab_box_x + tab_box_w - 15*sc, tab_box_y + tab_box_h), Color(0, 1, 1, 0.6), 2.5 * sc)
 		
-		# Draw icon
-		var icon_y := bar_y + 38.0 * sc
+		# Separator lines between tabs
+		if i > 0:
+			draw_line(Vector2(x, by + 20*sc), Vector2(x, by + bh - 20*sc), Color(0.3, 0.4, 0.5, 0.15), 1.0 * sc)
+		
+		# Draw icon (centered, larger)
+		var icon_y := by + bh * 0.38
 		match i:
 			0: NeonIcons.draw_ship_icon(self, Vector2(cx, icon_y), icon_s, tab_color)
 			1: NeonIcons.draw_upgrade_arrow(self, Vector2(cx, icon_y), icon_s, tab_color)
@@ -490,20 +664,24 @@ func _draw_nav_bar(vp: Vector2, font: Font) -> void:
 			3: NeonIcons.draw_crosshair(self, Vector2(cx, icon_y), icon_s, tab_color)
 			4: NeonIcons.draw_cart(self, Vector2(cx, icon_y), icon_s, tab_color)
 		
-		# Label
+		# Label (below icon)
 		var label: String = tab_names[i]
 		var ls := font.get_string_size(label, HORIZONTAL_ALIGNMENT_CENTER, -1, label_fs)
-		draw_string(font, Vector2(cx - ls.x / 2, bar_y + 85 * sc), label, HORIZONTAL_ALIGNMENT_CENTER, -1, label_fs, tab_color)
+		var label_y := by + bh * 0.78
+		# Text glow for active
+		if is_active:
+			draw_string(font, Vector2(cx - ls.x / 2, label_y), label, HORIZONTAL_ALIGNMENT_CENTER, -1, label_fs, Color(0, 1, 1, 0.15))
+		draw_string(font, Vector2(cx - ls.x / 2, label_y), label, HORIZONTAL_ALIGNMENT_CENTER, -1, label_fs, tab_color)
 
 # === Sub Screens ===
 func _draw_sub_screen(vp: Vector2, font: Font, time: float) -> void:
-	# Header
+	# Header (no back button — use nav bar to navigate)
 	var sc := vp.y / 1080.0
 	var hdr_h := 80.0 * sc
 	var hdr_fs := int(28 * sc)
 	draw_rect(Rect2(0, 0, vp.x, hdr_h), Color(0, 0, 0, 0.6))
 	draw_line(Vector2(0, hdr_h), Vector2(vp.x, hdr_h), Color(0.2, 0.3, 0.4, 0.3), 1.0)
-	draw_string(font, Vector2(30 * sc, hdr_h / 2 + hdr_fs * 0.35), "< Back", HORIZONTAL_ALIGNMENT_LEFT, -1, hdr_fs, Color(0, 1, 1, 0.8))
+	# Coins on right
 	NeonIcons.draw_coin(self, Vector2(vp.x - 250 * sc, hdr_h / 2), 10.0 * sc)
 	draw_string(font, Vector2(vp.x - 230 * sc, hdr_h / 2 + hdr_fs * 0.35), str(GameData.total_coins), HORIZONTAL_ALIGNMENT_LEFT, -1, hdr_fs, Color(1, 0.85, 0.2))
 	

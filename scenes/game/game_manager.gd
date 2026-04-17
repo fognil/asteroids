@@ -47,6 +47,19 @@ func _ready() -> void:
 	effects_container.add_to_group("effects_container")
 	enemies_container.add_to_group("enemies_container")
 	
+	# DEBUG: Print viewport info for Android debugging
+	var vp := get_viewport()
+	print("=== VIEWPORT DEBUG ===")
+	print("OS: ", OS.get_name())
+	print("Screen size: ", DisplayServer.screen_get_size())
+	print("Window size: ", DisplayServer.window_get_size())
+	print("Viewport size: ", vp.get_visible_rect().size)
+	print("Content scale size: ", get_window().content_scale_size)
+	print("Content scale mode: ", get_window().content_scale_mode)
+	print("Content scale aspect: ", get_window().content_scale_aspect)
+	print("ScreenWrap size: ", ScreenWrap.get_viewport_size())
+	print("========================")
+	
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.asteroid_destroyed.connect(_on_asteroid_destroyed)
 	EventBus.enemy_destroyed.connect(_on_enemy_destroyed)

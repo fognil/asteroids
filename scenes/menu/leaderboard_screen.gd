@@ -4,6 +4,7 @@ extends Control
 var entries: Array = []
 
 func _ready() -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_load_entries()
 
 func _load_entries() -> void:
@@ -27,10 +28,6 @@ func add_entry(score_val: int, wave_val: int, ship: String) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if event is InputEventScreenTouch and event.pressed:
-		pass  # No interactive elements
-	elif event is InputEventMouseButton and event.pressed:
-		pass
 
 func _process(_delta: float) -> void:
 	if visible:
