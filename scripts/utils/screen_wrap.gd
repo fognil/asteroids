@@ -2,7 +2,18 @@ class_name ScreenWrap
 ## Utility for wrapping objects around the viewport edges.
 
 ## Preloaded sci-fi font for custom draw calls
-static var neon_font: Font = preload("res://assets/fonts/Orbitron-Bold.ttf")
+static var _cached_font: Font = null
+
+static func _get_neon_font() -> Font:
+	if _cached_font == null:
+		_cached_font = load("res://assets/fonts/Orbitron-Bold.ttf")
+		if _cached_font == null:
+			_cached_font = ThemeDB.fallback_font
+	return _cached_font
+
+## Convenience accessor
+static var neon_font: Font:
+	get: return _get_neon_font()
 
 static func wrap_position(pos: Vector2, margin: float = 0.0) -> Vector2:
 	var vp_size := _get_viewport_size()

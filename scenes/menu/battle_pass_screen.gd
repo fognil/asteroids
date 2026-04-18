@@ -135,7 +135,7 @@ func _draw() -> void:
 	
 	for i in TIERS.size():
 		var y := 90 + float(i) * (card_h + 10) - scroll_offset
-		if y < 50 or y > vp.y:
+		if y < 50 or y > vp.y - 150:
 			continue
 		
 		var tier: Dictionary = TIERS[i]

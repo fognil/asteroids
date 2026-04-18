@@ -100,9 +100,8 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventScreenTouch and event.pressed:
-		_handle_touch(event.position)
-	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	# Only handle MouseButton — Godot auto-translates touch → mouse
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_handle_touch(event.position)
 
 func _handle_touch(pos: Vector2) -> void:
@@ -793,6 +792,7 @@ func _draw_upgrades(vp: Vector2, font: Font) -> void:
 	var fs := int(24 * sc)
 	var fs_sm := int(18 * sc)
 	
+	var max_y := vp.y - 150 * sc  # Don't draw into nav bar area
 	for i in upgrade_ids.size():
 		var uid: String = upgrade_ids[i]
 		var config: Dictionary = GameData.UPGRADE_CONFIG[uid]
@@ -800,6 +800,8 @@ func _draw_upgrades(vp: Vector2, font: Font) -> void:
 		var max_level: int = config["max"]
 		var cost := GameData.get_upgrade_cost(uid)
 		var y := start_y + i * (card_h + 12 * sc)
+		if y + card_h > max_y:
+			continue
 		var x := 60.0 * sc
 		
 		# Card bg
