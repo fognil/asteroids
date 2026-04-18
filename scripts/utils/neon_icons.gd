@@ -261,3 +261,191 @@ static func draw_shield(canvas: CanvasItem, pos: Vector2, size: float, color: Co
 		var r := star_s if i % 2 == 0 else star_s * 0.4
 		star_pts.append(pos + Vector2(cos(angle) * r, sin(angle) * r - s * 0.05))
 	canvas.draw_polyline(star_pts, Color(color, 0.6), 1.2, true)
+
+# ==========================================
+# SHIP DESIGNS — Unique wireframe for each
+# ==========================================
+
+static func draw_ship_by_id(canvas: CanvasItem, ship_id: String, pos: Vector2, size: float, color: Color, line_w: float = 2.0) -> void:
+	match ship_id:
+		"phoenix": _draw_phoenix(canvas, pos, size, color, line_w)
+		"viper": _draw_viper(canvas, pos, size, color, line_w)
+		"nebula": _draw_nebula(canvas, pos, size, color, line_w)
+		"titan": _draw_titan(canvas, pos, size, color, line_w)
+		"shadow": _draw_shadow(canvas, pos, size, color, line_w)
+		"omega": _draw_omega(canvas, pos, size, color, line_w)
+
+## Phoenix MK-I — balanced classic arrowhead
+static func _draw_phoenix(canvas: CanvasItem, pos: Vector2, s: float, color: Color, w: float) -> void:
+	var body := PackedVector2Array([
+		pos + Vector2(0, -s),           # nose
+		pos + Vector2(-s * 0.2, -s * 0.4),
+		pos + Vector2(-s * 0.15, s * 0.1),
+		pos + Vector2(-s * 0.55, s * 0.7),  # left wing tip
+		pos + Vector2(-s * 0.35, s * 0.5),
+		pos + Vector2(-s * 0.1, s * 0.6),
+		pos + Vector2(0, s * 0.45),     # tail center
+		pos + Vector2(s * 0.1, s * 0.6),
+		pos + Vector2(s * 0.35, s * 0.5),
+		pos + Vector2(s * 0.55, s * 0.7),   # right wing tip
+		pos + Vector2(s * 0.15, s * 0.1),
+		pos + Vector2(s * 0.2, -s * 0.4),
+		pos + Vector2(0, -s),           # close
+	])
+	canvas.draw_polyline(body, Color(color, 0.15), s * 0.3, true)
+	canvas.draw_polyline(body, color, w, true)
+	# Cockpit
+	canvas.draw_line(pos + Vector2(-s * 0.08, -s * 0.3), pos + Vector2(0, -s * 0.6), Color(color, 0.6), w * 0.7)
+	canvas.draw_line(pos + Vector2(s * 0.08, -s * 0.3), pos + Vector2(0, -s * 0.6), Color(color, 0.6), w * 0.7)
+	# Engine glow
+	canvas.draw_line(pos + Vector2(-s * 0.06, s * 0.45), pos + Vector2(-s * 0.06, s * 0.6), Color(color, 0.4), w * 1.5)
+	canvas.draw_line(pos + Vector2(s * 0.06, s * 0.45), pos + Vector2(s * 0.06, s * 0.6), Color(color, 0.4), w * 1.5)
+
+## Viper — sleek, narrow speed demon
+static func _draw_viper(canvas: CanvasItem, pos: Vector2, s: float, color: Color, w: float) -> void:
+	var body := PackedVector2Array([
+		pos + Vector2(0, -s * 1.1),     # sharp nose
+		pos + Vector2(-s * 0.12, -s * 0.5),
+		pos + Vector2(-s * 0.08, -s * 0.1),
+		pos + Vector2(-s * 0.4, s * 0.5),   # left swept wing
+		pos + Vector2(-s * 0.45, s * 0.75),
+		pos + Vector2(-s * 0.15, s * 0.4),
+		pos + Vector2(-s * 0.08, s * 0.55),
+		pos + Vector2(0, s * 0.4),
+		pos + Vector2(s * 0.08, s * 0.55),
+		pos + Vector2(s * 0.15, s * 0.4),
+		pos + Vector2(s * 0.45, s * 0.75),
+		pos + Vector2(s * 0.4, s * 0.5),
+		pos + Vector2(s * 0.08, -s * 0.1),
+		pos + Vector2(s * 0.12, -s * 0.5),
+		pos + Vector2(0, -s * 1.1),
+	])
+	canvas.draw_polyline(body, Color(color, 0.15), s * 0.25, true)
+	canvas.draw_polyline(body, color, w, true)
+	# Speed lines
+	canvas.draw_line(pos + Vector2(0, -s * 0.8), pos + Vector2(0, s * 0.1), Color(color, 0.3), w * 0.5)
+	# Fins
+	canvas.draw_line(pos + Vector2(-s * 0.35, s * 0.55), pos + Vector2(-s * 0.5, s * 0.85), Color(color, 0.5), w * 0.8)
+	canvas.draw_line(pos + Vector2(s * 0.35, s * 0.55), pos + Vector2(s * 0.5, s * 0.85), Color(color, 0.5), w * 0.8)
+
+## Nebula — bulky gunship with wide wings
+static func _draw_nebula(canvas: CanvasItem, pos: Vector2, s: float, color: Color, w: float) -> void:
+	var body := PackedVector2Array([
+		pos + Vector2(0, -s * 0.8),     # nose
+		pos + Vector2(-s * 0.25, -s * 0.3),
+		pos + Vector2(-s * 0.3, 0),
+		pos + Vector2(-s * 0.7, s * 0.3),   # left wing
+		pos + Vector2(-s * 0.75, s * 0.6),
+		pos + Vector2(-s * 0.5, s * 0.5),
+		pos + Vector2(-s * 0.2, s * 0.55),
+		pos + Vector2(-s * 0.15, s * 0.7),
+		pos + Vector2(0, s * 0.5),
+		pos + Vector2(s * 0.15, s * 0.7),
+		pos + Vector2(s * 0.2, s * 0.55),
+		pos + Vector2(s * 0.5, s * 0.5),
+		pos + Vector2(s * 0.75, s * 0.6),
+		pos + Vector2(s * 0.7, s * 0.3),
+		pos + Vector2(s * 0.3, 0),
+		pos + Vector2(s * 0.25, -s * 0.3),
+		pos + Vector2(0, -s * 0.8),
+	])
+	canvas.draw_polyline(body, Color(color, 0.15), s * 0.3, true)
+	canvas.draw_polyline(body, color, w, true)
+	# Gun barrels
+	canvas.draw_line(pos + Vector2(-s * 0.45, s * 0.2), pos + Vector2(-s * 0.45, -s * 0.2), Color(color, 0.5), w * 1.2)
+	canvas.draw_line(pos + Vector2(s * 0.45, s * 0.2), pos + Vector2(s * 0.45, -s * 0.2), Color(color, 0.5), w * 1.2)
+	# Cockpit window
+	canvas.draw_line(pos + Vector2(-s * 0.1, -s * 0.2), pos + Vector2(s * 0.1, -s * 0.2), Color(color, 0.4), w * 0.7)
+	canvas.draw_line(pos + Vector2(-s * 0.06, -s * 0.4), pos + Vector2(s * 0.06, -s * 0.4), Color(color, 0.4), w * 0.7)
+
+## Titan — heavy tank, thick armor plates
+static func _draw_titan(canvas: CanvasItem, pos: Vector2, s: float, color: Color, w: float) -> void:
+	var body := PackedVector2Array([
+		pos + Vector2(0, -s * 0.7),     # blunt nose
+		pos + Vector2(-s * 0.3, -s * 0.5),
+		pos + Vector2(-s * 0.35, -s * 0.2),
+		pos + Vector2(-s * 0.6, 0),
+		pos + Vector2(-s * 0.65, s * 0.4),  # left armor plate
+		pos + Vector2(-s * 0.5, s * 0.6),
+		pos + Vector2(-s * 0.3, s * 0.55),
+		pos + Vector2(-s * 0.2, s * 0.7),
+		pos + Vector2(0, s * 0.55),
+		pos + Vector2(s * 0.2, s * 0.7),
+		pos + Vector2(s * 0.3, s * 0.55),
+		pos + Vector2(s * 0.5, s * 0.6),
+		pos + Vector2(s * 0.65, s * 0.4),
+		pos + Vector2(s * 0.6, 0),
+		pos + Vector2(s * 0.35, -s * 0.2),
+		pos + Vector2(s * 0.3, -s * 0.5),
+		pos + Vector2(0, -s * 0.7),
+	])
+	canvas.draw_polyline(body, Color(color, 0.15), s * 0.35, true)
+	canvas.draw_polyline(body, color, w * 1.3, true)
+	# Armor cross plates
+	canvas.draw_line(pos + Vector2(-s * 0.4, -s * 0.1), pos + Vector2(s * 0.4, -s * 0.1), Color(color, 0.3), w)
+	canvas.draw_line(pos + Vector2(-s * 0.35, s * 0.2), pos + Vector2(s * 0.35, s * 0.2), Color(color, 0.3), w)
+	# Shield generator glow
+	canvas.draw_circle(pos + Vector2(0, s * 0.05), s * 0.12, Color(color, 0.15))
+	canvas.draw_circle(pos + Vector2(0, s * 0.05), s * 0.12, Color(color, 0.4), false, w * 0.7)
+
+## Shadow — stealth fighter, angular facets
+static func _draw_shadow(canvas: CanvasItem, pos: Vector2, s: float, color: Color, w: float) -> void:
+	var body := PackedVector2Array([
+		pos + Vector2(0, -s * 0.95),    # sharp nose
+		pos + Vector2(-s * 0.15, -s * 0.4),
+		pos + Vector2(-s * 0.6, -s * 0.1),  # left angular wing
+		pos + Vector2(-s * 0.7, s * 0.15),
+		pos + Vector2(-s * 0.4, s * 0.1),
+		pos + Vector2(-s * 0.2, s * 0.4),
+		pos + Vector2(-s * 0.1, s * 0.55),
+		pos + Vector2(0, s * 0.35),
+		pos + Vector2(s * 0.1, s * 0.55),
+		pos + Vector2(s * 0.2, s * 0.4),
+		pos + Vector2(s * 0.4, s * 0.1),
+		pos + Vector2(s * 0.7, s * 0.15),
+		pos + Vector2(s * 0.6, -s * 0.1),
+		pos + Vector2(s * 0.15, -s * 0.4),
+		pos + Vector2(0, -s * 0.95),
+	])
+	canvas.draw_polyline(body, Color(color, 0.1), s * 0.2, true)
+	canvas.draw_polyline(body, color, w, true)
+	# Stealth facet lines
+	canvas.draw_line(pos + Vector2(0, -s * 0.6), pos + Vector2(-s * 0.3, s * 0.05), Color(color, 0.2), w * 0.5)
+	canvas.draw_line(pos + Vector2(0, -s * 0.6), pos + Vector2(s * 0.3, s * 0.05), Color(color, 0.2), w * 0.5)
+	# Cloaking effect dots
+	for i in 5:
+		var angle := float(i) / 5.0 * TAU
+		var r := s * 0.3
+		canvas.draw_circle(pos + Vector2(cos(angle) * r, sin(angle) * r - s * 0.1), s * 0.02, Color(color, 0.25))
+
+## Omega — aggressive assault craft with forward weapons
+static func _draw_omega(canvas: CanvasItem, pos: Vector2, s: float, color: Color, w: float) -> void:
+	var body := PackedVector2Array([
+		pos + Vector2(0, -s * 0.9),     # nose
+		pos + Vector2(-s * 0.2, -s * 0.5),
+		pos + Vector2(-s * 0.35, -s * 0.3),
+		pos + Vector2(-s * 0.5, 0),
+		pos + Vector2(-s * 0.6, s * 0.5),   # left weapon pod
+		pos + Vector2(-s * 0.45, s * 0.65),
+		pos + Vector2(-s * 0.3, s * 0.45),
+		pos + Vector2(-s * 0.15, s * 0.6),
+		pos + Vector2(0, s * 0.4),
+		pos + Vector2(s * 0.15, s * 0.6),
+		pos + Vector2(s * 0.3, s * 0.45),
+		pos + Vector2(s * 0.45, s * 0.65),
+		pos + Vector2(s * 0.6, s * 0.5),
+		pos + Vector2(s * 0.5, 0),
+		pos + Vector2(s * 0.35, -s * 0.3),
+		pos + Vector2(s * 0.2, -s * 0.5),
+		pos + Vector2(0, -s * 0.9),
+	])
+	canvas.draw_polyline(body, Color(color, 0.15), s * 0.3, true)
+	canvas.draw_polyline(body, color, w, true)
+	# Weapon hardpoints
+	canvas.draw_line(pos + Vector2(-s * 0.55, s * 0.1), pos + Vector2(-s * 0.55, -s * 0.3), Color(color, 0.6), w * 1.5)
+	canvas.draw_line(pos + Vector2(s * 0.55, s * 0.1), pos + Vector2(s * 0.55, -s * 0.3), Color(color, 0.6), w * 1.5)
+	# Muzzle flare dots
+	canvas.draw_circle(pos + Vector2(-s * 0.55, -s * 0.35), s * 0.04, Color(color, 0.5))
+	canvas.draw_circle(pos + Vector2(s * 0.55, -s * 0.35), s * 0.04, Color(color, 0.5))
+	# Central cannon
+	canvas.draw_line(pos + Vector2(0, -s * 0.5), pos + Vector2(0, -s * 0.85), Color(color, 0.4), w)
